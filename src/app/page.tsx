@@ -1613,7 +1613,7 @@ export default function Home() {
       {/* 图片预览弹窗 */}
       {previewPhoto && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-50 p-4 cursor-pointer"
+          className="fixed inset-0 flex items-center justify-center z-50 p-8 cursor-pointer"
           style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
           onClick={() => setPreviewPhoto(null)}
         >
@@ -1621,13 +1621,13 @@ export default function Home() {
             <img
               src={previewPhoto}
               alt="预览"
-              className="max-w-full max-h-[85vh] object-contain"
-              style={{ borderRadius: 'var(--apple-radius)' }}
+              className="max-w-full max-h-[80vh] object-contain"
+              style={{ borderRadius: 'var(--apple-radius)', display: 'block' }}
               onClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={() => setPreviewPhoto(null)}
-              className="absolute -top-4 -right-4 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
+              className="absolute -top-5 -right-5 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
               style={{ background: 'rgba(255,255,255,0.9)', color: '#1D1D1F', boxShadow: 'var(--apple-shadow)' }}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
