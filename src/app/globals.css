@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* ===== Light mode (default) ===== */
 :root {
   --background: #F5F5F7;
   --foreground: #1D1D1F;
@@ -15,6 +16,32 @@
   --apple-radius-lg: 20px;
   --apple-radius-xl: 24px;
   --apple-transition: 280ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* Semantic tokens */
+  --apple-surface: rgba(0,0,0,0.02);
+  --apple-surface-hover: rgba(0,0,0,0.03);
+  --apple-surface-active: rgba(0,0,0,0.04);
+  --apple-divider: rgba(0,0,0,0.04);
+  --apple-divider-subtle: rgba(0,0,0,0.05);
+  --apple-segment-bg: rgba(0,0,0,0.05);
+  --apple-input-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+  --apple-dropdown-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  --apple-blue-tint-bg: rgba(0,122,255,0.04);
+  --apple-blue-tint-hover: rgba(0,122,255,0.06);
+  --apple-blue-tint-border: rgba(0,122,255,0.10);
+  --apple-blue-focus-ring: 0 0 0 3px rgba(0,122,255,0.1);
+  --apple-red: #FF3B30;
+  --apple-red-bg: rgba(255,59,48,0.06);
+  --apple-red-bg-hover: rgba(255,59,48,0.08);
+  --apple-red-border: rgba(255,59,48,0.15);
+  --apple-green: #34C759;
+  --apple-green-bg: rgba(52,199,89,0.08);
+  --apple-orange: #FF9500;
+  --apple-orange-bg: rgba(255,149,0,0.03);
+  --apple-overlay: rgba(0,0,0,0.7);
+  --apple-img-delete-btn: rgba(0,0,0,0.5);
+  --apple-close-btn-bg: rgba(255,255,255,0.15);
+  --apple-close-btn-hover: rgba(255,255,255,0.25);
+  --apple-close-btn-text: rgba(255,255,255,0.9);
 }
 
 @theme inline {
@@ -24,15 +51,91 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ===== Dark mode (manual toggle) ===== */
+[data-theme="dark"] {
+  --background: #000000;
+  --foreground: #F5F5F7;
+  --apple-gray: #1C1C1E;
+  --apple-gray-dark: #98989D;
+  --apple-card: #1C1C1E;
+  --apple-border: rgba(255, 255, 255, 0.08);
+  --apple-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --apple-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+  /* Semantic tokens */
+  --apple-surface: rgba(255,255,255,0.04);
+  --apple-surface-hover: rgba(255,255,255,0.06);
+  --apple-surface-active: rgba(255,255,255,0.08);
+  --apple-divider: rgba(255,255,255,0.06);
+  --apple-divider-subtle: rgba(255,255,255,0.07);
+  --apple-segment-bg: rgba(255,255,255,0.08);
+  --apple-input-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  --apple-dropdown-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  --apple-blue-tint-bg: rgba(0,122,255,0.08);
+  --apple-blue-tint-hover: rgba(0,122,255,0.12);
+  --apple-blue-tint-border: rgba(0,122,255,0.20);
+  --apple-blue-focus-ring: 0 0 0 3px rgba(0,122,255,0.2);
+  --apple-red: #FF453A;
+  --apple-red-bg: rgba(255,69,58,0.15);
+  --apple-red-bg-hover: rgba(255,69,58,0.20);
+  --apple-red-border: rgba(255,69,58,0.25);
+  --apple-green: #30D158;
+  --apple-green-bg: rgba(48,209,88,0.15);
+  --apple-orange: #FF9F0A;
+  --apple-orange-bg: rgba(255,159,10,0.08);
+  --apple-overlay: rgba(0,0,0,0.85);
+  --apple-img-delete-btn: rgba(0,0,0,0.6);
+  --apple-close-btn-bg: rgba(255,255,255,0.12);
+  --apple-close-btn-hover: rgba(255,255,255,0.20);
+  --apple-close-btn-text: rgba(255,255,255,0.85);
+}
+
+/* System-preference fallback when no explicit theme is set */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --background: #000000;
     --foreground: #F5F5F7;
+    --apple-gray: #1C1C1E;
+    --apple-gray-dark: #98989D;
     --apple-card: #1C1C1E;
     --apple-border: rgba(255, 255, 255, 0.08);
     --apple-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     --apple-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+    --apple-surface: rgba(255,255,255,0.04);
+    --apple-surface-hover: rgba(255,255,255,0.06);
+    --apple-surface-active: rgba(255,255,255,0.08);
+    --apple-divider: rgba(255,255,255,0.06);
+    --apple-divider-subtle: rgba(255,255,255,0.07);
+    --apple-segment-bg: rgba(255,255,255,0.08);
+    --apple-input-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    --apple-dropdown-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+    --apple-blue-tint-bg: rgba(0,122,255,0.08);
+    --apple-blue-tint-hover: rgba(0,122,255,0.12);
+    --apple-blue-tint-border: rgba(0,122,255,0.20);
+    --apple-blue-focus-ring: 0 0 0 3px rgba(0,122,255,0.2);
+    --apple-red: #FF453A;
+    --apple-red-bg: rgba(255,69,58,0.15);
+    --apple-red-bg-hover: rgba(255,69,58,0.20);
+    --apple-red-border: rgba(255,69,58,0.25);
+    --apple-green: #30D158;
+    --apple-green-bg: rgba(48,209,88,0.15);
+    --apple-orange: #FF9F0A;
+    --apple-orange-bg: rgba(255,159,10,0.08);
+    --apple-overlay: rgba(0,0,0,0.85);
+    --apple-img-delete-btn: rgba(0,0,0,0.6);
+    --apple-close-btn-bg: rgba(255,255,255,0.12);
+    --apple-close-btn-hover: rgba(255,255,255,0.20);
+    --apple-close-btn-text: rgba(255,255,255,0.85);
   }
+}
+
+/* Smooth theme transition */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.35s ease, color 0.35s ease,
+    border-color 0.35s ease, box-shadow 0.35s ease,
+    fill 0.35s ease, stroke 0.35s ease !important;
 }
 
 * {

@@ -199,6 +199,16 @@ function formatValue(value: unknown): string {
   return String(value ?? '')
 }
 
+// Filter out meaningless array values (empty strings, "0", null, undefined)
+function filterMeaningful(arr: unknown[] | undefined | null): unknown[] {
+  if (!arr) return []
+  return arr.filter(v => {
+    if (v === null || v === undefined) return false
+    const s = String(v).trim()
+    return s !== '' && s !== '0'
+  })
+}
+
 // Helper to parse edited value back to correct type
 function parseValue(key: string, value: string): unknown {
   if (key === 'people_count') {
@@ -236,6 +246,8 @@ export default function Home() {
   const [isGeneratingNewStory, setIsGeneratingNewStory] = useState(false) // 区分"生成故事"还是"更新叙事脚本"
   const [editingFrameId, setEditingFrameId] = useState<string | null>(null)
   const [editingFrameData, setEditingFrameData] = useState<{ narration: string; duration: number; transition: string | undefined }>({ narration: '', duration: 2, transition: undefined })
+  const [styleDropdownOpen, setStyleDropdownOpen] = useState(false)
+  const [transDropdownOpen, setTransDropdownOpen] = useState(false)
   // 存储智能排序后的照片顺序（仅在故事tab中使用）
   const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([])
   const [orderedFeatures, setOrderedFeatures] = useState<PhotoFeatures[]>([])
@@ -755,6 +767,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <style>{`@keyframes dropdownFadeIn{from{opacity:0;transform:translateY(-4px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}`}</style>
       <main className="max-w-[680px] mx-auto py-24 px-6">
         <div className="mb-16 text-center">
           <h1 className="text-[clamp(2.5rem,5vw,3.5rem)] font-semibold tracking-tight mb-4" style={{ color: 'var(--foreground)', letterSpacing: '-0.025em' }}>
@@ -792,7 +805,7 @@ export default function Home() {
 
         {/* 追加照片处理状态 - 简化版 */}
         {isAppending && !extracting && (
-          <div className="mt-4 px-4 py-3 flex items-center gap-2.5" style={{ background: 'rgba(0, 122, 255, 0.06)', border: '1px solid rgba(0, 122, 255, 0.15)', borderRadius: 'var(--apple-radius)' }}>
+          <div className="mt-4 px-4 py-3 flex items-center gap-2.5" style={{ background: 'var(--apple-blue-tint-hover)', border: '1px solid var(--apple-blue-tint-border)', borderRadius: 'var(--apple-radius)' }}>
             <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
             <span className="text-sm" style={{ color: 'var(--apple-blue)' }}>
               正在处理新照片... ({progress.current}/{progress.total})
@@ -801,13 +814,13 @@ export default function Home() {
         )}
 
         {failedExtractions.size > 0 && !extracting && (
-          <div className="mt-8 p-4" style={{ background: 'rgba(255, 59, 48, 0.06)', border: '1px solid rgba(255, 59, 48, 0.15)', borderRadius: 'var(--apple-radius)' }}>
+          <div className="mt-8 p-4" style={{ background: 'var(--apple-red-bg)', border: '1px solid var(--apple-red-border)', borderRadius: 'var(--apple-radius)' }}>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium" style={{ color: '#FF3B30' }}>
+                <p className="text-sm font-medium" style={{ color: 'var(--apple-red)' }}>
                   {failedExtractions.size} 张照片分析失败
                 </p>
-                <p className="text-xs mt-1" style={{ color: '#FF3B30', opacity: 0.7 }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--apple-red)', opacity: 0.7 }}>
                   可能原因：网络问题或照片格式不支持
                 </p>
               </div>
@@ -821,7 +834,7 @@ export default function Home() {
                     }
                   }}
                   className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
-                  style={{ color: '#FF3B30', background: 'rgba(255, 59, 48, 0.08)' }}
+                  style={{ color: 'var(--apple-red)', background: 'var(--apple-red-bg-hover)' }}
                 >
                   重试
                 </button>
@@ -844,10 +857,9 @@ export default function Home() {
 
         {features.length > 0 && !extracting && (
           <div className="mt-16">
-            {/* Tab 导航和操作栏 */}
-            <div className="flex items-center justify-between mb-8">
-              {/* Apple 风格 Tab 导航 - Segmented Control */}
-              <div className="inline-flex p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.05)' }}>
+            {/* Tab 导航 */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="inline-flex p-1 rounded-xl" style={{ background: 'var(--apple-segment-bg)' }}>
                 <button
                   onClick={() => setActiveTab('features')}
                   className={`px-5 py-2 text-sm font-medium rounded-[10px] transition-all duration-200 cursor-pointer ${
@@ -873,44 +885,141 @@ export default function Home() {
                   </button>
                 )}
               </div>
+            </div>
 
-              <div className="flex items-center gap-3">
-                {/* AI推荐的风格选择 */}
-                {loadingStyles ? (
-                  <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>正在推荐风格...</div>
-                ) : styleSuggestions.length > 0 ? (
-                  <select
-                    value={selectedStyle}
-                    onChange={(e) => setSelectedStyle(e.target.value)}
-                    className="px-3 py-2 text-sm rounded-xl focus:outline-none cursor-pointer"
-                    style={{ border: '1px solid var(--apple-border)', background: 'var(--apple-card)', color: 'var(--foreground)' }}
-                  >
-                    {styleSuggestions.map((suggestion) => (
-                      <option key={suggestion.id} value={suggestion.name}>
-                        {suggestion.name}
-                      </option>
-                    ))}
-                    <option value="custom">自定义风格</option>
-                  </select>
-                ) : (
-                  <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>等待特征提取完成...</div>
-                )}
+            {/* 故事生成工作区卡片 */}
+            {!loadingStyles && styleSuggestions.length > 0 && (
+              <div
+                className="mb-6 p-5"
+                style={{
+                  background: 'var(--apple-card)',
+                  borderRadius: 'var(--apple-radius-xl)',
+                  boxShadow: 'var(--apple-shadow)',
+                }}
+              >
+                {/* 风格选择行 */}
+                <div className="flex items-center gap-3 mb-3">
+                  {/* AI推荐的风格选择 */}
+                  {loadingStyles ? (
+                    <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>正在推荐风格...</div>
+                  ) : styleSuggestions.length > 0 ? (
+                    <div className="relative flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setStyleDropdownOpen(!styleDropdownOpen)}
+                        className="flex items-center justify-between gap-2 px-4 py-2.5 text-sm cursor-pointer transition-all duration-200"
+                        style={{
+                          minWidth: 140,
+                          border: styleDropdownOpen ? '1.5px solid var(--apple-blue)' : '1px solid var(--apple-border)',
+                          borderRadius: 12,
+                          background: 'var(--apple-surface)',
+                          color: 'var(--foreground)',
+                          boxShadow: styleDropdownOpen ? 'var(--apple-blue-focus-ring)' : 'none',
+                        }}
+                      >
+                        <span className="truncate">
+                          {selectedStyle === 'custom' ? '自定义风格' : (selectedStyle || '选择风格')}
+                        </span>
+                        <svg
+                          width="12" height="12" viewBox="0 0 12 12"
+                          style={{ transform: styleDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', flexShrink: 0, color: 'var(--apple-gray-dark)' }}
+                          fill="currentColor"
+                        >
+                          <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      {styleDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0" style={{ zIndex: 40 }} onClick={() => setStyleDropdownOpen(false)} />
+                          <div
+                            className="absolute top-full left-0 mt-1 py-1.5 w-full overflow-hidden"
+                            style={{
+                              zIndex: 50,
+                              background: 'var(--apple-card)',
+                              border: '1px solid var(--apple-border)',
+                              borderRadius: 12,
+                              boxShadow: 'var(--apple-dropdown-shadow)',
+                              animation: 'dropdownFadeIn 0.15s ease-out',
+                            }}
+                          >
+                            {styleSuggestions.map((suggestion) => (
+                              <button
+                                key={suggestion.id}
+                                type="button"
+                                onClick={() => { setSelectedStyle(suggestion.name); setStyleDropdownOpen(false) }}
+                                className="w-full text-left px-4 py-2 text-sm transition-colors duration-100 flex items-center justify-between"
+                                style={{
+                                  color: 'var(--foreground)',
+                                  background: selectedStyle === suggestion.name ? 'var(--apple-blue-tint-hover)' : 'transparent',
+                                }}
+                                onMouseEnter={(e) => { if (selectedStyle !== suggestion.name) e.currentTarget.style.background = 'var(--apple-surface-hover)' }}
+                                onMouseLeave={(e) => { if (selectedStyle !== suggestion.name) e.currentTarget.style.background = 'transparent' }}
+                              >
+                                <span>{suggestion.name}</span>
+                                {selectedStyle === suggestion.name && (
+                                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: 'var(--apple-blue)' }}>
+                                    <path d="M3 7l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </button>
+                            ))}
+                            <div style={{ borderTop: '1px solid var(--apple-border)', margin: '4px 12px' }} />
+                            <button
+                              type="button"
+                              onClick={() => { setSelectedStyle('custom'); setStyleDropdownOpen(false) }}
+                              className="w-full text-left px-4 py-2 text-sm transition-colors duration-100 flex items-center justify-between"
+                              style={{
+                                color: 'var(--foreground)',
+                                background: selectedStyle === 'custom' ? 'var(--apple-blue-tint-hover)' : 'transparent',
+                              }}
+                              onMouseEnter={(e) => { if (selectedStyle !== 'custom') e.currentTarget.style.background = 'var(--apple-surface-hover)' }}
+                              onMouseLeave={(e) => { if (selectedStyle !== 'custom') e.currentTarget.style.background = 'transparent' }}
+                            >
+                              <span>自定义风格</span>
+                              {selectedStyle === 'custom' && (
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: 'var(--apple-blue)' }}>
+                                  <path d="M3 7l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>等待特征提取完成...</div>
+                  )}
 
-                {/* 自定义输入 - 只在选择自定义时显示 */}
-                {selectedStyle === 'custom' && (
-                  <input
-                    type="text"
-                    value={customStyleInput}
-                    onChange={(e) => setCustomStyleInput(e.target.value)}
-                    placeholder="描述你想要的故事风格..."
-                    className="px-3 py-2 text-sm rounded-xl focus:outline-none w-64"
-                    style={{ border: '1px solid var(--apple-border)', background: 'var(--apple-card)', color: 'var(--foreground)' }}
-                  />
-                )}
+                  {/* 自定义输入 - 只在选择自定义时显示 */}
+                  {selectedStyle === 'custom' && (
+                    <input
+                      type="text"
+                      value={customStyleInput}
+                      onChange={(e) => setCustomStyleInput(e.target.value)}
+                      placeholder="描述你想要的故事风格..."
+                      className="px-3.5 py-2.5 text-sm focus:outline-none flex-1 min-w-0 transition-all duration-200"
+                      style={{
+                        border: '1px solid var(--apple-border)',
+                        borderRadius: 12,
+                        background: 'var(--apple-surface)',
+                        color: 'var(--foreground)',
+                      }}
+                    />
+                  )}
+                </div>
 
+                {/* 风格推荐理由 */}
+                <p className="text-xs mb-4" style={{ color: 'var(--apple-gray-dark)' }}>
+                  {selectedStyle === 'custom'
+                    ? (customStyleInput || '描述你想要的故事风格...')
+                    : `${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
+                  }
+                </p>
+
+                {/* 生成按钮 */}
                 <button
                   onClick={() => handleGenerateStory(false)}
-                  className="px-6 py-2.5 text-white text-sm font-medium rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-3 text-white text-sm font-medium rounded-full cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ background: 'var(--apple-blue)' }}
                   disabled={
                     generatingStoryboard ||
@@ -936,18 +1045,6 @@ export default function Home() {
                   }
                 </button>
               </div>
-            </div>
-
-            {/* 风格推荐理由 */}
-            {!loadingStyles && styleSuggestions.length > 0 && (
-              <div className="mb-6 px-4 py-3" style={{ background: 'rgba(0, 122, 255, 0.04)', borderRadius: 'var(--apple-radius)' }}>
-                <p className="text-sm" style={{ color: 'var(--apple-blue)' }}>
-                  {selectedStyle === 'custom'
-                    ? `自定义风格: ${customStyleInput || '描述你想要的故事风格...'}`
-                    : `${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
-                  }
-                </p>
-              </div>
             )}
 
             {/* 工作区内容 - 无边框，纯阴影 */}
@@ -964,9 +1061,9 @@ export default function Home() {
                     key={feature.photoId}
                     className="overflow-hidden transition-all duration-200"
                     style={{
-                      background: unsaved ? 'rgba(255, 149, 0, 0.03)' : 'rgba(0,0,0,0.02)',
+                      background: unsaved ? 'var(--apple-orange-bg)' : 'var(--apple-surface)',
                       borderRadius: 'var(--apple-radius)',
-                      boxShadow: unsaved ? 'inset 0 0 0 1.5px #FF9500' : 'none',
+                      boxShadow: unsaved ? 'inset 0 0 0 1.5px var(--apple-orange)' : 'none',
                       padding: '20px'
                     }}
                   >
@@ -994,14 +1091,14 @@ export default function Home() {
                               <button
                                 onClick={saveEdits}
                                 className="px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: '#34C759', background: 'rgba(52, 199, 89, 0.08)' }}
+                                style={{ color: 'var(--apple-green)', background: 'var(--apple-green-bg)' }}
                               >
                                 保存
                               </button>
                               <button
                                 onClick={cancelEditing}
                                 className="px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                                style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-surface-active)' }}
                               >
                                 取消
                               </button>
@@ -1011,7 +1108,7 @@ export default function Home() {
                               <button
                                 onClick={() => startEditing(feature.photoId)}
                                 className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                                style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-surface-active)' }}
                                 title="编辑"
                               >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1019,7 +1116,7 @@ export default function Home() {
                               <button
                                 onClick={() => toggleExpand(feature.photoId)}
                                 className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                                style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-surface-active)' }}
                                 title={expanded ? '收起' : '展开详情'}
                               >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }}><path d="M6 9l6 6 6-6"/></svg>
@@ -1027,7 +1124,7 @@ export default function Home() {
                               <button
                                 onClick={() => deletePhoto(feature.photoId)}
                                 className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: '#FF3B30', background: 'rgba(255, 59, 48, 0.06)' }}
+                                style={{ color: 'var(--apple-red)', background: 'var(--apple-red-bg)' }}
                                 title="删除"
                               >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -1037,14 +1134,14 @@ export default function Home() {
                         </div>
                       </div>
                       {unsaved && (
-                        <div className="mt-2 text-xs" style={{ color: '#FF9500' }}>
+                        <div className="mt-2 text-xs" style={{ color: 'var(--apple-orange)' }}>
                           有未保存的修改
                         </div>
                       )}
                     </div>
 
                     {/* Main features */}
-                    <div className="pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div className="pt-4" style={{ borderTop: '1px solid var(--apple-divider-subtle)' }}>
                       {editing ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                           {getEditableKeys(feature).map(key => (
@@ -1110,7 +1207,7 @@ export default function Home() {
 
                     {/* Detailed features (expandable, not editable in this view) */}
                     {expanded && !editing && (
-                      <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+                      <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--apple-divider)' }}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                           {/* Scene Details */}
                           {(feature.setting_description || feature.season || feature.weather) && (
@@ -1138,35 +1235,41 @@ export default function Home() {
                           )}
 
                           {/* People Details */}
-                          {(feature.people_descriptions?.length || feature.expressions?.length || feature.poses?.length || feature.relationships?.length) && (
-                            <div className="space-y-2">
-                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>人物详情</p>
-                              {feature.people_descriptions && feature.people_descriptions.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>人物</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.people_descriptions.join(', ')}</p>
-                                </div>
-                              )}
-                              {feature.expressions && feature.expressions.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>表情</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.expressions.join(', ')}</p>
-                                </div>
-                              )}
-                              {feature.poses && feature.poses.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>姿态</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.poses.join(', ')}</p>
-                                </div>
-                              )}
-                              {feature.relationships && feature.relationships.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>关系</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('relationships', feature.relationships)}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {(() => {
+                            const peopleDesc = filterMeaningful(feature.people_descriptions)
+                            const expressions = filterMeaningful(feature.expressions)
+                            const poses = filterMeaningful(feature.poses)
+                            const relationships = filterMeaningful(feature.relationships)
+                            return (peopleDesc.length > 0 || expressions.length > 0 || poses.length > 0 || relationships.length > 0) ? (
+                              <div className="space-y-2">
+                                <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>人物详情</p>
+                                {peopleDesc.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>人物</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{peopleDesc.join(', ')}</p>
+                                  </div>
+                                )}
+                                {expressions.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>表情</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{expressions.join(', ')}</p>
+                                  </div>
+                                )}
+                                {poses.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>姿态</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{poses.join(', ')}</p>
+                                  </div>
+                                )}
+                                {relationships.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>关系</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('relationships', relationships)}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
+                          })()}
 
                           {/* Mood Details */}
                           {(feature.mood || feature.atmosphere || feature.context) && (
@@ -1194,35 +1297,40 @@ export default function Home() {
                           )}
 
                           {/* Visual Elements */}
-                          {(feature.background_elements?.length || feature.foreground_elements?.length || feature.colors?.length || feature.lighting) && (
-                            <div className="space-y-2">
-                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>视觉元素</p>
-                              {feature.colors && feature.colors.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>色调</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.colors.join(', ')}</p>
-                                </div>
-                              )}
-                              {feature.lighting && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>光线</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('lighting', feature.lighting)}</p>
-                                </div>
-                              )}
-                              {feature.background_elements && feature.background_elements.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>背景</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.background_elements.join(', ')}</p>
-                                </div>
-                              )}
-                              {feature.foreground_elements && feature.foreground_elements.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>前景</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.foreground_elements.join(', ')}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {(() => {
+                            const colors = filterMeaningful(feature.colors)
+                            const bgElements = filterMeaningful(feature.background_elements)
+                            const fgElements = filterMeaningful(feature.foreground_elements)
+                            return (bgElements.length > 0 || fgElements.length > 0 || colors.length > 0 || feature.lighting) ? (
+                              <div className="space-y-2">
+                                <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>视觉元素</p>
+                                {colors.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>色调</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{colors.join(', ')}</p>
+                                  </div>
+                                )}
+                                {feature.lighting && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>光线</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('lighting', feature.lighting)}</p>
+                                  </div>
+                                )}
+                                {bgElements.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>背景</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{bgElements.join(', ')}</p>
+                                  </div>
+                                )}
+                                {fgElements.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>前景</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{fgElements.join(', ')}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
+                          })()}
 
                           {/* Composition & Style */}
                           {(feature.composition || feature.perspective || feature.style) && (
@@ -1250,54 +1358,60 @@ export default function Home() {
                           )}
 
                           {/* Sensory */}
-                          {(feature.soundscape || feature.temperature || feature.textures?.length) && (
-                            <div className="space-y-2">
-                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>感官体验</p>
-                              {feature.soundscape && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>声景</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.soundscape}</p>
-                                </div>
-                              )}
-                              {feature.temperature && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>温度</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('temperature', feature.temperature)}</p>
-                                </div>
-                              )}
-                              {feature.textures && feature.textures.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>质感</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.textures.join(', ')}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {(() => {
+                            const textures = filterMeaningful(feature.textures)
+                            return (feature.soundscape || feature.temperature || textures.length > 0) ? (
+                              <div className="space-y-2">
+                                <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>感官体验</p>
+                                {feature.soundscape && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>声景</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.soundscape}</p>
+                                  </div>
+                                )}
+                                {feature.temperature && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>温度</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('temperature', feature.temperature)}</p>
+                                  </div>
+                                )}
+                                {textures.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>质感</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{textures.join(', ')}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
+                          })()}
 
                           {/* Narrative */}
-                          {(feature.story_hint || feature.moment_significance || feature.aesthetic_keywords?.length) && (
-                            <div className="space-y-2">
-                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>叙事元素</p>
-                              {feature.story_hint && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>故事暗示</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.story_hint}</p>
-                                </div>
-                              )}
-                              {feature.moment_significance && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>时刻意义</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('moment_significance', feature.moment_significance)}</p>
-                                </div>
-                              )}
-                              {feature.aesthetic_keywords && feature.aesthetic_keywords.length > 0 && (
-                                <div className="space-y-1">
-                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>美学关键词</p>
-                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.aesthetic_keywords.join(', ')}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {(() => {
+                            const keywords = filterMeaningful(feature.aesthetic_keywords)
+                            return (feature.story_hint || feature.moment_significance || keywords.length > 0) ? (
+                              <div className="space-y-2">
+                                <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>叙事元素</p>
+                                {feature.story_hint && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>故事暗示</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.story_hint}</p>
+                                  </div>
+                                )}
+                                {feature.moment_significance && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>时刻意义</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('moment_significance', feature.moment_significance)}</p>
+                                  </div>
+                                )}
+                                {keywords.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>美学关键词</p>
+                                    <p style={{ color: 'var(--apple-gray-dark)' }}>{keywords.join(', ')}</p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null
+                          })()}
                         </div>
                       </div>
                     )}
@@ -1327,7 +1441,7 @@ export default function Home() {
                   ) : (
                     <>
                       {/* 故事操作栏 */}
-                      <div className="flex items-center justify-between mb-8 pb-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                      <div className="flex items-center justify-between mb-8 pb-5" style={{ borderBottom: '1px solid var(--apple-divider-subtle)' }}>
                         <div className="flex items-center gap-4 text-sm">
                           <span style={{ color: 'var(--apple-gray-dark)' }}>
                             叙事方式: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{getStructureName(storyArc.structure)}</span>
@@ -1348,7 +1462,7 @@ export default function Home() {
                           <button
                             onClick={handleRegenerateStory}
                             className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
-                            style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                            style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-surface-active)' }}
                           >
                             更新叙事脚本
                           </button>
@@ -1356,7 +1470,7 @@ export default function Home() {
                             <button
                               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
                               className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80 flex items-center gap-1.5"
-                              style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                              style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-surface-active)' }}
                             >
                               导出
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1370,7 +1484,7 @@ export default function Home() {
                                     onClick={() => handleExport('markdown')}
                                     className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
                                     style={{ color: 'var(--foreground)' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--apple-surface-active)'}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     Markdown
@@ -1379,7 +1493,7 @@ export default function Home() {
                                     onClick={() => handleExport('json')}
                                     className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
                                     style={{ color: 'var(--foreground)' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--apple-surface-active)'}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     JSON
@@ -1388,7 +1502,7 @@ export default function Home() {
                                     onClick={() => handleExport('text')}
                                     className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
                                     style={{ color: 'var(--foreground)' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--apple-surface-active)'}
                                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     纯文本
@@ -1402,7 +1516,7 @@ export default function Home() {
 
                       {/* 生成故事板中提示（仅"更新叙事脚本"时显示） */}
                       {generatingStoryboard && !isGeneratingNewStory && (
-                        <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(0, 122, 255, 0.04)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 'var(--apple-radius)' }}>
+                        <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'var(--apple-blue-tint-bg)', border: '1px solid var(--apple-blue-tint-border)', borderRadius: 'var(--apple-radius)' }}>
                           <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
                           <span className="text-sm" style={{ color: 'var(--apple-blue)' }}>
                             正在更新叙事脚本...
@@ -1416,14 +1530,21 @@ export default function Home() {
                           return (
                         <div
                           key={segment.id}
-                          className="overflow-hidden"
-                          style={{ background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--apple-radius)' }}
+                          style={{ background: 'var(--apple-surface)', borderRadius: 'var(--apple-radius)' }}
                         >
                           {/* Segment header */}
-                          <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                          <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--apple-divider)' }}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-6 h-6 text-white text-xs font-semibold rounded-full" style={{ background: 'var(--apple-blue)' }}>
+                                <span
+                                  className="flex items-center justify-center text-xs font-semibold"
+                                  style={{
+                                    width: 26, height: 26, borderRadius: 8,
+                                    background: 'linear-gradient(135deg, var(--apple-blue-tint-hover), var(--apple-blue-tint-bg))',
+                                    color: 'var(--apple-blue)',
+                                    border: '1px solid var(--apple-blue-tint-border)',
+                                  }}
+                                >
                                   {index + 1}
                                 </span>
                                 <h4 className="font-medium" style={{ color: 'var(--foreground)' }}>{segment.title}</h4>
@@ -1449,8 +1570,8 @@ export default function Home() {
                                     className="flex gap-4 p-3 transition-all duration-200"
                                     style={{
                                       borderRadius: '12px',
-                                      background: isEditing ? 'rgba(0, 122, 255, 0.04)' : 'rgba(0,0,0,0.02)',
-                                      border: isEditing ? '1.5px solid rgba(0, 122, 255, 0.2)' : '1px solid transparent'
+                                      background: isEditing ? 'var(--apple-blue-tint-bg)' : 'var(--apple-surface)',
+                                      border: isEditing ? '1.5px solid var(--apple-blue-tint-border)' : '1px solid transparent'
                                     }}
                                   >
                                     <img
@@ -1467,25 +1588,31 @@ export default function Home() {
                                           {!isEditing && !generatingStoryboard && (
                                             <button
                                               onClick={() => startEditingFrame(frame.id, frame.narration, frame.duration, frame.transition || '')}
-                                              className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
-                                              style={{ color: 'var(--apple-blue)' }}
+                                              className="px-3 py-1 text-xs font-medium cursor-pointer transition-all duration-200"
+                                              style={{ color: 'var(--apple-blue)', borderRadius: 6, background: 'var(--apple-blue-tint-hover)' }}
+                                              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--apple-blue-tint-border)'}
+                                              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--apple-blue-tint-hover)'}
                                             >
                                               编辑
                                             </button>
                                           )}
                                           {isEditing && (
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
                                               <button
                                                 onClick={saveFrameEdit}
-                                                className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
-                                                style={{ color: '#34C759' }}
+                                                className="px-3 py-1 text-xs font-medium cursor-pointer transition-all duration-200"
+                                                style={{ color: '#fff', borderRadius: 6, background: 'var(--apple-green)' }}
+                                                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+                                                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                                               >
                                                 保存
                                               </button>
                                               <button
                                                 onClick={cancelEditingFrame}
-                                                className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
-                                                style={{ color: 'var(--apple-gray-dark)' }}
+                                                className="px-3 py-1 text-xs font-medium cursor-pointer transition-all duration-200"
+                                                style={{ color: 'var(--foreground)', borderRadius: 6, background: 'var(--apple-segment-bg)' }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--apple-surface-active)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--apple-segment-bg)'}
                                               >
                                                 取消
                                               </button>
@@ -1498,42 +1625,117 @@ export default function Home() {
                                         // 编辑模式
                                         <div className="space-y-3">
                                           <div>
-                                            <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>叙事描述</label>
+                                            <label className="text-xs font-medium" style={{ color: 'var(--apple-gray-dark)', letterSpacing: '0.02em' }}>叙事描述</label>
                                             <textarea
                                               value={editingFrameData.narration}
                                               onChange={(e) => setEditingFrameData({ ...editingFrameData, narration: e.target.value })}
-                                              className="w-full mt-1 px-3 py-2 text-sm focus:outline-none min-h-[60px]"
-                                              style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
+                                              className="w-full mt-1.5 px-3.5 py-2.5 text-sm focus:outline-none min-h-[72px] resize-none transition-all duration-200"
+                                              style={{
+                                                border: '1px solid var(--apple-border)',
+                                                borderRadius: 10,
+                                                background: 'var(--apple-card)',
+                                                color: 'var(--foreground)',
+                                                boxShadow: 'var(--apple-input-shadow)',
+                                              }}
+                                              onFocus={(e) => { e.target.style.borderColor = 'var(--apple-blue)'; e.target.style.boxShadow = 'var(--apple-blue-focus-ring)' }}
+                                              onBlur={(e) => { e.target.style.borderColor = 'var(--apple-border)'; e.target.style.boxShadow = 'var(--apple-input-shadow)' }}
                                               placeholder="输入叙事描述..."
                                             />
                                           </div>
-                                          <div className="flex gap-4">
+                                          <div className="flex gap-3">
                                             <div className="flex-1">
-                                              <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>时长（秒）</label>
+                                              <label className="text-xs font-medium" style={{ color: 'var(--apple-gray-dark)', letterSpacing: '0.02em' }}>时长（秒）</label>
                                               <input
                                                 type="number"
                                                 min="1"
                                                 max="10"
                                                 value={editingFrameData.duration}
                                                 onChange={(e) => setEditingFrameData({ ...editingFrameData, duration: parseInt(e.target.value) || 2 })}
-                                                className="w-full mt-1 px-3 py-2 text-sm focus:outline-none"
-                                                style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
+                                                className="w-full mt-1.5 px-3.5 py-2.5 text-sm focus:outline-none transition-all duration-200"
+                                                style={{
+                                                  border: '1px solid var(--apple-border)',
+                                                  borderRadius: 10,
+                                                  background: 'var(--apple-card)',
+                                                  color: 'var(--foreground)',
+                                                  boxShadow: 'var(--apple-input-shadow)',
+                                                }}
+                                                onFocus={(e) => { e.target.style.borderColor = 'var(--apple-blue)'; e.target.style.boxShadow = 'var(--apple-blue-focus-ring)' }}
+                                                onBlur={(e) => { e.target.style.borderColor = 'var(--apple-border)'; e.target.style.boxShadow = 'var(--apple-input-shadow)' }}
                                               />
                                             </div>
                                             <div className="flex-1">
-                                              <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>转场效果</label>
-                                              <select
-                                                value={editingFrameData.transition}
-                                                onChange={(e) => setEditingFrameData({ ...editingFrameData, transition: e.target.value || undefined })}
-                                                className="w-full mt-1 px-3 py-2 text-sm focus:outline-none cursor-pointer"
-                                                style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
-                                              >
-                                                <option value="">无</option>
-                                                <option value="fade">淡入淡出</option>
-                                                <option value="cut">切</option>
-                                                <option value="dissolve">溶解</option>
-                                                <option value="wipe">擦除</option>
-                                              </select>
+                                              <label className="text-xs font-medium" style={{ color: 'var(--apple-gray-dark)', letterSpacing: '0.02em' }}>转场效果</label>
+                                              {(() => {
+                                                const transitionOptions = [
+                                                  { value: '', label: '无' },
+                                                  { value: 'fade', label: '淡入淡出' },
+                                                  { value: 'cut', label: '切' },
+                                                  { value: 'dissolve', label: '溶解' },
+                                                  { value: 'wipe', label: '擦除' },
+                                                ]
+                                                const current = transitionOptions.find(o => o.value === (editingFrameData.transition || ''))
+                                                return (
+                                                  <div className="relative mt-1.5">
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => setTransDropdownOpen(!transDropdownOpen)}
+                                                      className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm text-left cursor-pointer transition-all duration-200"
+                                                      style={{
+                                                        border: transDropdownOpen ? '1.5px solid var(--apple-blue)' : '1px solid var(--apple-border)',
+                                                        borderRadius: 10,
+                                                        background: 'var(--apple-card)',
+                                                        color: 'var(--foreground)',
+                                                        boxShadow: transDropdownOpen ? 'var(--apple-blue-focus-ring)' : 'var(--apple-input-shadow)',
+                                                      }}
+                                                    >
+                                                      <span>{current?.label || '无'}</span>
+                                                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" style={{ transform: transDropdownOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: 'var(--apple-gray-dark)' }}>
+                                                        <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                      </svg>
+                                                    </button>
+                                                    {transDropdownOpen && (
+                                                      <>
+                                                        <div className="fixed inset-0" style={{ zIndex: 40 }} onClick={() => setTransDropdownOpen(false)} />
+                                                        <div
+                                                          className="absolute top-full left-0 mt-1 py-1 w-full overflow-hidden"
+                                                          style={{
+                                                            zIndex: 50,
+                                                            background: 'var(--apple-card)',
+                                                            border: '1px solid var(--apple-border)',
+                                                            borderRadius: 10,
+                                                            boxShadow: 'var(--apple-dropdown-shadow)',
+                                                          }}
+                                                        >
+                                                          {transitionOptions.map(opt => (
+                                                            <button
+                                                              key={opt.value}
+                                                              type="button"
+                                                              onClick={() => {
+                                                                setEditingFrameData({ ...editingFrameData, transition: opt.value || undefined })
+                                                                setTransDropdownOpen(false)
+                                                              }}
+                                                              className="w-full text-left px-3.5 py-2 text-sm flex items-center justify-between transition-colors duration-100"
+                                                              style={{
+                                                                color: 'var(--foreground)',
+                                                                background: (editingFrameData.transition || '') === opt.value ? 'var(--apple-blue-tint-hover)' : 'transparent',
+                                                              }}
+                                                              onMouseEnter={(e) => { if ((editingFrameData.transition || '') !== opt.value) e.currentTarget.style.background = 'var(--apple-surface-hover)' }}
+                                                              onMouseLeave={(e) => { if ((editingFrameData.transition || '') !== opt.value) e.currentTarget.style.background = 'transparent' }}
+                                                            >
+                                                              <span>{opt.label}</span>
+                                                              {(editingFrameData.transition || '') === opt.value && (
+                                                                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style={{ color: 'var(--apple-blue)' }}>
+                                                                  <path d="M3 7l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                </svg>
+                                                              )}
+                                                            </button>
+                                                          ))}
+                                                        </div>
+                                                      </>
+                                                    )}
+                                                  </div>
+                                                )
+                                              })()}
                                             </div>
                                           </div>
                                         </div>
@@ -1566,7 +1768,7 @@ export default function Home() {
                                   <div
                                     key={photoId}
                                     className="flex gap-4 p-3"
-                                    style={{ background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}
+                                    style={{ background: 'var(--apple-surface)', borderRadius: '12px' }}
                                   >
                                     <img
                                       src={photo.url}
@@ -1614,7 +1816,7 @@ export default function Home() {
       {previewPhoto && (
         <div
           className="fixed inset-0 flex items-center justify-center z-50 cursor-pointer"
-          style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', padding: '10vh 10vw' }}
+          style={{ background: 'var(--apple-overlay)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', padding: '10vh 10vw' }}
           onClick={() => setPreviewPhoto(null)}
         >
           <div className="relative flex items-center justify-center w-full h-full">
@@ -1628,9 +1830,9 @@ export default function Home() {
             <button
               onClick={() => setPreviewPhoto(null)}
               className="absolute top-0 right-0 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
-              style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+              style={{ background: 'var(--apple-close-btn-bg)', color: 'var(--apple-close-btn-text)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--apple-close-btn-hover)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--apple-close-btn-bg)'}
             >
               <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M1 1l12 12M13 1L1 13" />

@@ -105,7 +105,7 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
         <div className="space-y-5">
           {photos.length === 0 && (
             <>
-              <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0, 122, 255, 0.08)' }}>
+              <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--apple-blue-tint-hover)' }}>
                 <svg
                   width="28"
                   height="28"
@@ -167,7 +167,7 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
                 <button
                   onClick={(e) => handleDelete(photo.id, e)}
                   className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer z-10"
-                  style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', fontSize: '10px' }}
+                  style={{ background: 'var(--apple-img-delete-btn)', backdropFilter: 'blur(4px)', fontSize: '10px' }}
                   title="移除照片"
                 >
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
