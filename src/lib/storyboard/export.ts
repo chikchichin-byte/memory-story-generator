@@ -1,4 +1,4 @@
-import type { Storyboard, StoryArc } from './storyboard'
+import type { Storyboard } from './storyboard'
 
 export interface ExportOptions {
   format: 'markdown' | 'json' | 'text'

@@ -235,7 +235,7 @@ export default function Home() {
   const [generatingStoryboard, setGeneratingStoryboard] = useState(false)
   const [isGeneratingNewStory, setIsGeneratingNewStory] = useState(false) // 区分"生成故事"还是"更新叙事脚本"
   const [editingFrameId, setEditingFrameId] = useState<string | null>(null)
-  const [editingFrameData, setEditingFrameData] = useState<{ narration: string; duration: number; transition: 'fade' | 'cut' | 'dissolve' | 'wipe' | undefined }>({ narration: '', duration: 2, transition: undefined })
+  const [editingFrameData, setEditingFrameData] = useState<{ narration: string; duration: number; transition: string | undefined }>({ narration: '', duration: 2, transition: undefined })
   // 存储智能排序后的照片顺序（仅在故事tab中使用）
   const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([])
   const [orderedFeatures, setOrderedFeatures] = useState<PhotoFeatures[]>([])
@@ -651,7 +651,7 @@ export default function Home() {
   }
 
   // 开始编辑帧
-  const startEditingFrame = (frameId: string, narration: string, duration: number, transition: 'fade' | 'cut' | 'dissolve' | 'wipe' | undefined) => {
+  const startEditingFrame = (frameId: string, narration: string, duration: number, transition: string | undefined) => {
     setEditingFrameId(frameId)
     setEditingFrameData({ narration, duration, transition })
   }
@@ -1480,7 +1480,7 @@ export default function Home() {
                                               <label className="text-xs text-zinc-600 dark:text-zinc-400">转场效果</label>
                                               <select
                                                 value={editingFrameData.transition}
-                                                onChange={(e) => setEditingFrameData({ ...editingFrameData, transition: (e.target.value || undefined) as 'fade' | 'cut' | 'dissolve' | 'wipe' | undefined })}
+                                                onChange={(e) => setEditingFrameData({ ...editingFrameData, transition: e.target.value || undefined })}
                                                 className="w-full mt-1 px-2 py-1 text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-zinc-100"
                                               >
                                                 <option value="">无</option>

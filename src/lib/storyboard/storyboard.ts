@@ -8,7 +8,7 @@ export interface StoryboardFrame {
   order: number
   narration: string // 叙事描述/旁白
   duration: number // 建议时长（秒）
-  transition?: 'fade' | 'cut' | 'dissolve' | 'wipe' // 转场效果
+  transition?: string // 转场效果（AI可能返回任意值）
 }
 
 export interface StoryboardSegment {
