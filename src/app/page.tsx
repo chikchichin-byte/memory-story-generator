@@ -1613,24 +1613,26 @@ export default function Home() {
       {/* 图片预览弹窗 */}
       {previewPhoto && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-50 p-8 cursor-pointer"
-          style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+          className="fixed inset-0 flex items-center justify-center z-50 cursor-pointer"
+          style={{ background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', padding: '10vh 10vw' }}
           onClick={() => setPreviewPhoto(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative flex items-center justify-center w-full h-full">
             <img
               src={previewPhoto}
               alt="预览"
-              className="max-w-full max-h-[80vh] object-contain"
-              style={{ borderRadius: 'var(--apple-radius)', display: 'block' }}
+              className="object-contain"
+              style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 'var(--apple-radius-lg)' }}
               onClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={() => setPreviewPhoto(null)}
-              className="absolute -top-5 -right-5 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
-              style={{ background: 'rgba(255,255,255,0.9)', color: '#1D1D1F', boxShadow: 'var(--apple-shadow)' }}
+              className="absolute top-0 right-0 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200"
+              style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.9)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M1 1l12 12M13 1L1 13" />
               </svg>
             </button>
