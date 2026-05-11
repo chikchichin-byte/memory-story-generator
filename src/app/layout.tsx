@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "记忆故事生成器",
+  title: "Memory Story Generator",
   description: "AI 驱动的照片故事生成工具，将照片集合转化为具有情感共鸣的叙事故事板。",
 };
 

@@ -771,7 +771,7 @@ export default function Home() {
       <main className="max-w-[680px] mx-auto py-24 px-6">
         <div className="mb-16 text-center">
           <h1 className="text-[clamp(2.5rem,5vw,3.5rem)] font-semibold tracking-tight mb-4" style={{ color: 'var(--foreground)', letterSpacing: '-0.025em' }}>
-            记忆故事生成器
+            Memory Story Generator
           </h1>
           <p className="text-base leading-relaxed" style={{ color: 'var(--apple-gray-dark)' }}>
             上传照片，开始创建你的故事
