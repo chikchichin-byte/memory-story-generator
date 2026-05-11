@@ -347,30 +347,27 @@ export default function Home() {
 
       if (append) {
         // Merge new features with existing ones - use prev to get latest state
-        setFeatures(prev => {
-          const merged = [...prev, ...result.features]
-          store.dispatch({ type: 'setFeatures', features: merged })
-          return merged
-        })
-        // 同步更新orderedFeatures
-        setOrderedFeatures(prev => {
-          const merged = [...prev, ...result.features]
-          return merged
-        })
+        const prevFeatures = features
+        const merged = [...prevFeatures, ...result.features]
+        setFeatures(merged)
+        store.dispatch({ type: 'setFeatures', features: merged })
+        setOrderedFeatures(prev => [...prev, ...result.features])
+        // 特征提取完成后，获取风格推荐
+        if (merged.length >= MIN_PHOTOS_FOR_STORY) {
+          fetchStyleSuggestions(merged)
+        }
       } else {
         setFeatures(result.features)
         store.dispatch({ type: 'setFeatures', features: result.features })
-        // 首次提取时，同步更新orderedFeatures
         setOrderedFeatures(result.features)
+        // 特征提取完成后，获取风格推荐
+        if (result.features.length >= MIN_PHOTOS_FOR_STORY) {
+          fetchStyleSuggestions(result.features)
+        }
       }
 
       console.log('Extracted features:', result.features)
       console.log('Failed extractions:', result.failedPhotoIds)
-
-      // 特征提取完成后，获取风格推荐
-      if (result.features.length >= MIN_PHOTOS_FOR_STORY) {
-        fetchStyleSuggestions(result.features)
-      }
     } catch (error) {
       console.error('Extraction error:', error)
     } finally {
@@ -462,7 +459,24 @@ export default function Home() {
   }
 
   const deletePhoto = (photoId: string) => {
-    if (!confirm('确定要删除这张照片吗？')) return
+    const remainingPhotos = photos.filter(p => p.id !== photoId)
+    const willDropBelowMin = remainingPhotos.length < MIN_PHOTOS_FOR_STORY && photos.length >= MIN_PHOTOS_FOR_STORY
+
+    if (willDropBelowMin) {
+      if (!confirm('删除后照片将少于 3 张，生成故事功能将不可用。确定要删除吗？')) return
+    } else {
+      if (!confirm('确定要删除这张照片吗？')) return
+    }
+
+    // If dropping below minimum, reset story state and switch to features tab
+    if (willDropBelowMin) {
+      setStoryArc(null)
+      setStoryboard(null)
+      setStyleSuggestions([])
+      setSelectedStyle('')
+      setCustomStyleInput('')
+      setActiveTab('features')
+    }
 
     // Update photos first
     const updatedPhotos = photos.filter(p => p.id !== photoId)
@@ -888,7 +902,7 @@ export default function Home() {
             </div>
 
             {/* 故事生成工作区卡片 */}
-            {features.length >= MIN_PHOTOS_FOR_STORY && (
+            {features.length > 0 && (
               <div
                 className="mb-6 p-5"
                 style={{
@@ -990,7 +1004,7 @@ export default function Home() {
                       )}
                     </div>
                   ) : (
-                    <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>等待特征提取完成...</div>
+                    <div className="py-2.5 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>等待补充照片...</div>
                   )}
 
                   {/* 自定义输入 - 只在选择自定义时显示 */}
@@ -1016,7 +1030,7 @@ export default function Home() {
                   {loadingStyles
                     ? 'AI 正在根据照片特征推荐风格...'
                     : styleSuggestions.length === 0
-                    ? '等待特征提取完成...'
+                    ? '照片补足后将自动推荐风格'
                     : selectedStyle === 'custom'
                     ? (customStyleInput || '描述你想要的故事风格...')
                     : `${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
@@ -1032,7 +1046,8 @@ export default function Home() {
                     generatingStoryboard ||
                     unsavedChanges.size > 0 ||
                     failedExtractions.size > 0 ||
-                    features.length < MIN_PHOTOS_FOR_STORY ||
+                    photos.length < MIN_PHOTOS_FOR_STORY ||
+                    extracting ||
                     !selectedStyle ||
                     (selectedStyle === 'custom' && !customStyleInput.trim())
                   }
@@ -1042,8 +1057,10 @@ export default function Home() {
                   )}
                   {generatingStoryboard
                     ? '正在生成...'
-                    : features.length < MIN_PHOTOS_FOR_STORY
+                    : photos.length < MIN_PHOTOS_FOR_STORY
                     ? `至少需要 ${MIN_PHOTOS_FOR_STORY} 张照片`
+                    : extracting
+                    ? '正在提取特征...'
                     : unsavedChanges.size > 0
                     ? `请先保存 ${unsavedChanges.size} 项修改`
                     : failedExtractions.size > 0
