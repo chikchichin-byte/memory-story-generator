@@ -35,7 +35,7 @@ describe('PhotoUpload', () => {
     const onPhotosReady = vi.fn()
     const { container } = render(<PhotoUpload onPhotosReady={onPhotosReady} />)
 
-    const dropZone = container.querySelector('.border-dashed') as HTMLElement
+    const dropZone = container.querySelector('[data-drop-zone]') as HTMLElement
     expect(dropZone).toBeInTheDocument()
 
     const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })

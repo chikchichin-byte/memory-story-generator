@@ -91,34 +91,39 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
     <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-        photos.length === 0
-          ? 'border-zinc-300 hover:border-zinc-400'
-          : 'border-zinc-200'
-      }`}
+      data-drop-zone
+      className="transition-all duration-200 cursor-pointer"
+      style={{
+        border: photos.length === 0 ? '2px dashed rgba(0,0,0,0.12)' : '1px solid var(--apple-border)',
+        borderRadius: 'var(--apple-radius-xl)',
+        padding: photos.length === 0 ? '48px 24px' : '20px',
+        background: 'var(--apple-card)',
+        boxShadow: 'var(--apple-shadow)'
+      }}
     >
       <label htmlFor="file-input" className="cursor-pointer">
         <div className="space-y-4">
           {photos.length === 0 && (
             <>
               <svg
-                className="mx-auto h-12 w-12 text-zinc-400"
-                stroke="currentColor"
-                fill="none"
+                className="mx-auto"
+                width="48"
+                height="48"
                 viewBox="0 0 48 48"
+                fill="none"
+                stroke="currentColor"
+                style={{ color: 'var(--apple-gray-dark)' }}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <path
-                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" />
               </svg>
               <div>
-                <p className="text-lg font-medium text-zinc-900">
+                <p className="text-lg font-medium" style={{ color: 'var(--foreground)' }}>
                   上传照片
                 </p>
-                <p className="text-sm text-zinc-500">
+                <p className="text-sm mt-1" style={{ color: 'var(--apple-gray-dark)' }}>
                   拖拽或点击选择照片
                 </p>
               </div>
@@ -136,20 +141,20 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
         className="hidden"
       />
       {photos.length > 0 && (
-        <div className="mt-6">
+        <div className="mt-0">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
               已上传 {photos.length} 张照片
             </p>
             {photos.length < maxPhotos ? (
-              <label htmlFor="file-input" className="text-sm text-blue-600 dark:text-blue-400 cursor-pointer hover:underline">
+              <label htmlFor="file-input" className="text-sm font-medium cursor-pointer transition-opacity hover:opacity-70" style={{ color: 'var(--apple-blue)' }}>
                 + 添加更多
               </label>
             ) : (
-              <span className="text-sm text-zinc-400">已达上限</span>
+              <span className="text-sm" style={{ color: 'var(--apple-gray-dark)' }}>已达上限</span>
             )}
           </div>
-          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2.5">
             {photos.map((photo) => (
               <div
                 key={photo.id}
@@ -158,21 +163,25 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
                 <img
                   src={photo.url}
                   alt="预览"
-                  className="w-full h-full object-cover rounded-lg group-hover:opacity-90 transition-opacity"
+                  className="w-full h-full object-cover group-hover:opacity-90 transition-opacity"
+                  style={{ borderRadius: '12px' }}
                   onClick={() => onPhotoPreview?.(photo.url)}
                 />
                 <button
                   onClick={(e) => handleDelete(photo.id, e)}
-                  className="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-sm z-10"
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer z-10"
+                  style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', fontSize: '10px' }}
                   title="移除照片"
                 >
-                  ×
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M1 1l6 6M7 1L1 7" />
+                  </svg>
                 </button>
               </div>
             ))}
           </div>
           {photos.length >= maxPhotos && (
-            <p className="mt-2 text-xs text-zinc-500 text-center">
+            <p className="mt-2 text-xs text-center" style={{ color: 'var(--apple-gray-dark)' }}>
               已达到照片数量上限
             </p>
           )}
