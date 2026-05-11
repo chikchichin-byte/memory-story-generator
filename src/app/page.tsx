@@ -755,12 +755,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>
-      <main className="max-w-3xl mx-auto py-20 px-6">
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl font-semibold tracking-tight mb-3" style={{ color: 'var(--foreground)' }}>
+      <main className="max-w-[680px] mx-auto py-24 px-6">
+        <div className="mb-16 text-center">
+          <h1 className="text-[clamp(2.5rem,5vw,3.5rem)] font-semibold tracking-tight mb-4" style={{ color: 'var(--foreground)', letterSpacing: '-0.025em' }}>
             记忆故事生成器
           </h1>
-          <p className="text-lg" style={{ color: 'var(--apple-gray-dark)' }}>
+          <p className="text-base leading-relaxed" style={{ color: 'var(--apple-gray-dark)' }}>
             上传照片，开始创建你的故事
           </p>
         </div>
@@ -843,9 +843,9 @@ export default function Home() {
         )}
 
         {features.length > 0 && !extracting && (
-          <div className="mt-10">
+          <div className="mt-16">
             {/* Tab 导航和操作栏 */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
               {/* Apple 风格 Tab 导航 - Segmented Control */}
               <div className="inline-flex p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.05)' }}>
                 <button
@@ -910,7 +910,7 @@ export default function Home() {
 
                 <button
                   onClick={() => handleGenerateStory(false)}
-                  className="px-5 py-2.5 text-white text-sm font-medium rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 text-white text-sm font-medium rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ background: 'var(--apple-blue)' }}
                   disabled={
                     generatingStoryboard ||
@@ -940,7 +940,7 @@ export default function Home() {
 
             {/* 风格推荐理由 */}
             {!loadingStyles && styleSuggestions.length > 0 && (
-              <div className="mb-5 p-3.5" style={{ background: 'rgba(0, 122, 255, 0.04)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 'var(--apple-radius)' }}>
+              <div className="mb-6 px-4 py-3" style={{ background: 'rgba(0, 122, 255, 0.04)', borderRadius: 'var(--apple-radius)' }}>
                 <p className="text-sm" style={{ color: 'var(--apple-blue)' }}>
                   {selectedStyle === 'custom'
                     ? `自定义风格: ${customStyleInput || '描述你想要的故事风格...'}`
@@ -950,10 +950,10 @@ export default function Home() {
               </div>
             )}
 
-            {/* 工作区内容 */}
-            <div style={{ background: 'var(--apple-card)', borderRadius: 'var(--apple-radius-lg)', boxShadow: 'var(--apple-shadow)' }}>
+            {/* 工作区内容 - 无边框，纯阴影 */}
+            <div style={{ background: 'var(--apple-card)', borderRadius: 'var(--apple-radius-xl)', boxShadow: 'var(--apple-shadow)' }}>
               {activeTab === 'features' && (
-                <div className="p-5 space-y-4">
+                <div className="p-6 space-y-5">
                   {features.map((feature, index) => {
                 const expanded = isExpanded(feature.photoId)
                 const editing = isEditing(feature.photoId)
@@ -964,34 +964,43 @@ export default function Home() {
                     key={feature.photoId}
                     className="overflow-hidden transition-all duration-200"
                     style={{
-                      border: unsaved ? '1.5px solid #FF9500' : '1px solid var(--apple-border)',
+                      background: unsaved ? 'rgba(255, 149, 0, 0.03)' : 'rgba(0,0,0,0.02)',
                       borderRadius: 'var(--apple-radius)',
-                      boxShadow: unsaved ? '0 0 0 3px rgba(255, 149, 0, 0.1)' : 'none'
+                      boxShadow: unsaved ? 'inset 0 0 0 1.5px #FF9500' : 'none',
+                      padding: '20px'
                     }}
                   >
                     {/* Header */}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <img
-                          src={photos[index]?.url}
-                          alt={`Photo ${index + 1}`}
-                          className="w-16 h-16 object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
-                          style={{ borderRadius: '12px' }}
-                          onClick={() => setPreviewPhoto(photos[index]?.url || null)}
-                        />
-                        <div className="flex items-center gap-1.5">
+                    <div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={photos[index]?.url}
+                            alt={`Photo ${index + 1}`}
+                            className="w-14 h-14 object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                            style={{ borderRadius: '10px' }}
+                            onClick={() => setPreviewPhoto(photos[index]?.url || null)}
+                          />
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>照片 {index + 1}</p>
+                            {feature.location && (
+                              <p className="text-xs mt-0.5" style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('location', feature.location)}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
                           {editing ? (
                             <>
                               <button
                                 onClick={saveEdits}
-                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                className="px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
                                 style={{ color: '#34C759', background: 'rgba(52, 199, 89, 0.08)' }}
                               >
                                 保存
                               </button>
                               <button
                                 onClick={cancelEditing}
-                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                className="px-3 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
                                 style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
                               >
                                 取消
@@ -1001,24 +1010,27 @@ export default function Home() {
                             <>
                               <button
                                 onClick={() => startEditing(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
-                                style={{ color: 'var(--apple-blue)', background: 'rgba(0, 122, 255, 0.06)' }}
+                                className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                                title="编辑"
                               >
-                                编辑
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                               </button>
                               <button
                                 onClick={() => toggleExpand(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
                                 style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
+                                title={expanded ? '收起' : '展开详情'}
                               >
-                                {expanded ? '收起' : '展开'}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 200ms' }}><path d="M6 9l6 6 6-6"/></svg>
                               </button>
                               <button
                                 onClick={() => deletePhoto(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                className="px-2.5 py-1.5 text-xs font-medium rounded-full cursor-pointer transition-all duration-200 hover:opacity-80"
                                 style={{ color: '#FF3B30', background: 'rgba(255, 59, 48, 0.06)' }}
+                                title="删除"
                               >
-                                删除
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                               </button>
                             </>
                           )}
@@ -1098,8 +1110,8 @@ export default function Home() {
 
                     {/* Detailed features (expandable, not editable in this view) */}
                     {expanded && !editing && (
-                      <div className="px-4 pb-4 pt-4" style={{ borderTop: '1px solid var(--apple-border)' }}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-sm">
+                      <div className="pt-4 mt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                           {/* Scene Details */}
                           {(feature.setting_description || feature.season || feature.weather) && (
                             <div className="space-y-2">
@@ -1315,7 +1327,7 @@ export default function Home() {
                   ) : (
                     <>
                       {/* 故事操作栏 */}
-                      <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: '1px solid var(--apple-border)' }}>
+                      <div className="flex items-center justify-between mb-8 pb-5" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                         <div className="flex items-center gap-4 text-sm">
                           <span style={{ color: 'var(--apple-gray-dark)' }}>
                             叙事方式: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{getStructureName(storyArc.structure)}</span>
@@ -1398,17 +1410,17 @@ export default function Home() {
                         </div>
                       )}
 
-                      <div className="space-y-4">
+                      <div className="space-y-5">
                         {storyArc.segments.map((segment, index) => {
                           const storyboardSegment = storyboard?.segments.find(s => s.id === segment.id)
                           return (
                         <div
                           key={segment.id}
                           className="overflow-hidden"
-                          style={{ border: '1px solid var(--apple-border)', borderRadius: 'var(--apple-radius)' }}
+                          style={{ background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--apple-radius)' }}
                         >
                           {/* Segment header */}
-                          <div className="px-4 py-3" style={{ background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid var(--apple-border)' }}>
+                          <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <span className="flex items-center justify-center w-6 h-6 text-white text-xs font-semibold rounded-full" style={{ background: 'var(--apple-blue)' }}>
@@ -1424,7 +1436,7 @@ export default function Home() {
                           </div>
 
                           {/* Segment frames with narrative */}
-                          <div className="p-4 space-y-3">
+                          <div className="p-4 space-y-3" style={{ padding: '16px 20px 20px' }}>
                             {storyboardSegment?.frames && storyboardSegment.frames.length > 0 ? (
                               // 有 storyboard 数据，显示完整的帧信息
                               storyboardSegment.frames.map((frame, frameIndex) => {

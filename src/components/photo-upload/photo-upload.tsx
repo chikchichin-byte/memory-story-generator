@@ -94,37 +94,34 @@ export function PhotoUpload({ photos: externalPhotos, onPhotosReady, onPhotoDele
       data-drop-zone
       className="transition-all duration-200 cursor-pointer"
       style={{
-        border: photos.length === 0 ? '2px dashed rgba(0,0,0,0.12)' : '1px solid var(--apple-border)',
+        border: 'none',
         borderRadius: 'var(--apple-radius-xl)',
-        padding: photos.length === 0 ? '48px 24px' : '20px',
+        padding: photos.length === 0 ? '56px 24px' : '24px',
         background: 'var(--apple-card)',
         boxShadow: 'var(--apple-shadow)'
       }}
     >
       <label htmlFor="file-input" className="cursor-pointer">
-        <div className="space-y-4">
+        <div className="space-y-5">
           {photos.length === 0 && (
             <>
-              <svg
-                className="mx-auto"
-                width="48"
-                height="48"
-                viewBox="0 0 48 48"
-                fill="none"
-                stroke="currentColor"
-                style={{ color: 'var(--apple-gray-dark)' }}
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" />
-              </svg>
+              <div className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(0, 122, 255, 0.08)' }}>
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 28 28"
+                  fill="none"
+                  style={{ color: 'var(--apple-blue)' }}
+                >
+                  <path d="M14 3v12m0-12L9 8m5-5l5 5M4 17v4a4 4 0 004 4h12a4 4 0 004-4v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <div>
-                <p className="text-lg font-medium" style={{ color: 'var(--foreground)' }}>
+                <p className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                   上传照片
                 </p>
-                <p className="text-sm mt-1" style={{ color: 'var(--apple-gray-dark)' }}>
-                  拖拽或点击选择照片
+                <p className="text-sm mt-1.5" style={{ color: 'var(--apple-gray-dark)' }}>
+                  点击或拖拽照片到这里
                 </p>
               </div>
             </>

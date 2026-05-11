@@ -10,7 +10,7 @@ describe('PhotoUpload', () => {
     render(<PhotoUpload onPhotosReady={onPhotosReady} />)
 
     expect(screen.getByText('上传照片')).toBeInTheDocument()
-    expect(screen.getByText('拖拽或点击选择照片')).toBeInTheDocument()
+    expect(screen.getByText('点击或拖拽照片到这里')).toBeInTheDocument()
   })
 
   it('accepts photo files via input', async () => {
