@@ -888,7 +888,7 @@ export default function Home() {
             </div>
 
             {/* 故事生成工作区卡片 */}
-            {!loadingStyles && styleSuggestions.length > 0 && (
+            {features.length >= MIN_PHOTOS_FOR_STORY && (
               <div
                 className="mb-6 p-5"
                 style={{
@@ -901,7 +901,10 @@ export default function Home() {
                 <div className="flex items-center gap-3 mb-3">
                   {/* AI推荐的风格选择 */}
                   {loadingStyles ? (
-                    <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>正在推荐风格...</div>
+                    <div className="flex items-center gap-2 px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>
+                      <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
+                      正在推荐风格...
+                    </div>
                   ) : styleSuggestions.length > 0 ? (
                     <div className="relative flex-shrink-0">
                       <button
@@ -1010,7 +1013,11 @@ export default function Home() {
 
                 {/* 风格推荐理由 */}
                 <p className="text-xs mb-4" style={{ color: 'var(--apple-gray-dark)' }}>
-                  {selectedStyle === 'custom'
+                  {loadingStyles
+                    ? 'AI 正在根据照片特征推荐风格...'
+                    : styleSuggestions.length === 0
+                    ? '等待特征提取完成...'
+                    : selectedStyle === 'custom'
                     ? (customStyleInput || '描述你想要的故事风格...')
                     : `${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
                   }
@@ -1601,7 +1608,7 @@ export default function Home() {
                                               <button
                                                 onClick={saveFrameEdit}
                                                 className="px-3 py-1 text-xs font-medium cursor-pointer transition-all duration-200"
-                                                style={{ color: '#fff', borderRadius: 6, background: 'var(--apple-green)' }}
+                                                style={{ color: 'var(--apple-green)', borderRadius: 6, background: 'var(--apple-green-bg)', border: '1px solid var(--apple-green)' }}
                                                 onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
                                                 onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                                               >
