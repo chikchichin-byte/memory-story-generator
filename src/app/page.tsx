@@ -971,7 +971,7 @@ export default function Home() {
                     }}
                   >
                     {/* Header */}
-                    <div>
+                    <div className="pb-3">
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                           <img
@@ -1044,7 +1044,7 @@ export default function Home() {
                     </div>
 
                     {/* Main features */}
-                    <div className="px-4 pb-4">
+                    <div className="pt-4" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
                       {editing ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                           {getEditableKeys(feature).map(key => (
