@@ -754,13 +754,13 @@ export default function Home() {
   const hasUnsavedChanges = (photoId: string) => unsavedChanges.has(photoId)
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <main className="max-w-4xl mx-auto py-16 px-4">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+    <div className="min-h-screen" style={{ background: 'var(--background)' }}>
+      <main className="max-w-3xl mx-auto py-20 px-6">
+        <div className="mb-12 text-center">
+          <h1 className="text-5xl font-semibold tracking-tight mb-3" style={{ color: 'var(--foreground)' }}>
             记忆故事生成器
           </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
+          <p className="text-lg" style={{ color: 'var(--apple-gray-dark)' }}>
             上传照片，开始创建你的故事
           </p>
         </div>
@@ -775,14 +775,14 @@ export default function Home() {
 
         {/* 首次上传处理状态 */}
         {extracting && features.length === 0 && (
-          <div className="mt-8 bg-white dark:bg-zinc-900 rounded-lg p-6 shadow-sm">
+          <div className="mt-8 p-8 text-center" style={{ background: 'var(--apple-card)', borderRadius: 'var(--apple-radius-lg)', boxShadow: 'var(--apple-shadow)' }}>
             <div className="flex flex-col items-center justify-center gap-4">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-[3px] rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
               <div className="text-center">
-                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                   正在分析照片...
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs mt-1" style={{ color: 'var(--apple-gray-dark)' }}>
                   {progress.current} / {progress.total}
                 </p>
               </div>
@@ -792,24 +792,22 @@ export default function Home() {
 
         {/* 追加照片处理状态 - 简化版 */}
         {isAppending && !extracting && (
-          <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-2">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-blue-700 dark:text-blue-400">
-                正在处理新照片... ({progress.current}/{progress.total})
-              </span>
-            </div>
+          <div className="mt-4 px-4 py-3 flex items-center gap-2.5" style={{ background: 'rgba(0, 122, 255, 0.06)', border: '1px solid rgba(0, 122, 255, 0.15)', borderRadius: 'var(--apple-radius)' }}>
+            <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
+            <span className="text-sm" style={{ color: 'var(--apple-blue)' }}>
+              正在处理新照片... ({progress.current}/{progress.total})
+            </span>
           </div>
         )}
 
         {failedExtractions.size > 0 && !extracting && (
-          <div className="mt-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="mt-8 p-4" style={{ background: 'rgba(255, 59, 48, 0.06)', border: '1px solid rgba(255, 59, 48, 0.15)', borderRadius: 'var(--apple-radius)' }}>
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-red-700 dark:text-red-400">
-                  ⚠️ {failedExtractions.size} 张照片分析失败
+                <p className="text-sm font-medium" style={{ color: '#FF3B30' }}>
+                  {failedExtractions.size} 张照片分析失败
                 </p>
-                <p className="text-xs text-red-600 dark:text-red-500 mt-1">
+                <p className="text-xs mt-1" style={{ color: '#FF3B30', opacity: 0.7 }}>
                   可能原因：网络问题或照片格式不支持
                 </p>
               </div>
@@ -822,7 +820,8 @@ export default function Home() {
                       extractFeatures(failedPhotos, true)
                     }
                   }}
-                  className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                  style={{ color: '#FF3B30', background: 'rgba(255, 59, 48, 0.08)' }}
                 >
                   重试
                 </button>
@@ -833,7 +832,8 @@ export default function Home() {
                     failedIds.forEach(id => deletePhoto(id))
                     setFailedExtractions(new Set())
                   }}
-                  className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                  style={{ color: 'var(--apple-gray-dark)', background: 'var(--apple-border)' }}
                 >
                   删除失败的照片
                 </button>
@@ -843,29 +843,31 @@ export default function Home() {
         )}
 
         {features.length > 0 && !extracting && (
-          <div className="mt-8">
+          <div className="mt-10">
             {/* Tab 导航和操作栏 */}
-            <div className="flex items-center justify-between mb-4">
-              {/* Tab 导航 */}
-              <div className="flex gap-1">
+            <div className="flex items-center justify-between mb-6">
+              {/* Apple 风格 Tab 导航 - Segmented Control */}
+              <div className="inline-flex p-1 rounded-xl" style={{ background: 'rgba(0,0,0,0.05)' }}>
                 <button
                   onClick={() => setActiveTab('features')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`px-5 py-2 text-sm font-medium rounded-[10px] transition-all duration-200 cursor-pointer ${
                     activeTab === 'features'
-                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                      : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                      ? 'shadow-sm'
+                      : 'hover:opacity-70'
                   }`}
+                  style={activeTab === 'features' ? { background: 'var(--apple-card)', color: 'var(--foreground)' } : { color: 'var(--apple-gray-dark)' }}
                 >
                   照片 ({features.length})
                 </button>
                 {storyArc && (
                   <button
                     onClick={() => setActiveTab('story')}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`px-5 py-2 text-sm font-medium rounded-[10px] transition-all duration-200 cursor-pointer ${
                       activeTab === 'story'
-                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                        : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                        ? 'shadow-sm'
+                        : 'hover:opacity-70'
                     }`}
+                    style={activeTab === 'story' ? { background: 'var(--apple-card)', color: 'var(--foreground)' } : { color: 'var(--apple-gray-dark)' }}
                   >
                     故事 ({storyArc.segments.length}章)
                   </button>
@@ -875,22 +877,23 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 {/* AI推荐的风格选择 */}
                 {loadingStyles ? (
-                  <div className="px-3 py-2 text-sm text-zinc-500">正在推荐风格...</div>
+                  <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>正在推荐风格...</div>
                 ) : styleSuggestions.length > 0 ? (
                   <select
                     value={selectedStyle}
                     onChange={(e) => setSelectedStyle(e.target.value)}
-                    className="px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="px-3 py-2 text-sm rounded-xl focus:outline-none cursor-pointer"
+                    style={{ border: '1px solid var(--apple-border)', background: 'var(--apple-card)', color: 'var(--foreground)' }}
                   >
                     {styleSuggestions.map((suggestion) => (
                       <option key={suggestion.id} value={suggestion.name}>
                         {suggestion.name}
                       </option>
                     ))}
-                    <option value="custom">✨ 自定义风格</option>
+                    <option value="custom">自定义风格</option>
                   </select>
                 ) : (
-                  <div className="px-3 py-2 text-sm text-zinc-500">等待特征提取完成...</div>
+                  <div className="px-3 py-2 text-sm" style={{ color: 'var(--apple-gray-dark)' }}>等待特征提取完成...</div>
                 )}
 
                 {/* 自定义输入 - 只在选择自定义时显示 */}
@@ -900,13 +903,15 @@ export default function Home() {
                     value={customStyleInput}
                     onChange={(e) => setCustomStyleInput(e.target.value)}
                     placeholder="描述你想要的故事风格..."
-                    className="px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500 w-64"
+                    className="px-3 py-2 text-sm rounded-xl focus:outline-none w-64"
+                    style={{ border: '1px solid var(--apple-border)', background: 'var(--apple-card)', color: 'var(--foreground)' }}
                   />
                 )}
 
                 <button
                   onClick={() => handleGenerateStory(false)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-5 py-2.5 text-white text-sm font-medium rounded-full cursor-pointer transition-all duration-200 flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: 'var(--apple-blue)' }}
                   disabled={
                     generatingStoryboard ||
                     unsavedChanges.size > 0 ||
@@ -935,20 +940,20 @@ export default function Home() {
 
             {/* 风格推荐理由 */}
             {!loadingStyles && styleSuggestions.length > 0 && (
-              <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
-                <p className="text-sm text-purple-700 dark:text-purple-400">
+              <div className="mb-5 p-3.5" style={{ background: 'rgba(0, 122, 255, 0.04)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 'var(--apple-radius)' }}>
+                <p className="text-sm" style={{ color: 'var(--apple-blue)' }}>
                   {selectedStyle === 'custom'
-                    ? `✨ 自定义风格: ${customStyleInput || '描述你想要的故事风格...'}`
-                    : `💡 ${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
+                    ? `自定义风格: ${customStyleInput || '描述你想要的故事风格...'}`
+                    : `${styleSuggestions.find(s => s.name === selectedStyle)?.reason || '选择一个风格开始生成故事'}`
                   }
                 </p>
               </div>
             )}
 
             {/* 工作区内容 */}
-            <div className="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <div style={{ background: 'var(--apple-card)', borderRadius: 'var(--apple-radius-lg)', boxShadow: 'var(--apple-shadow)' }}>
               {activeTab === 'features' && (
-                <div className="p-6">
+                <div className="p-5 space-y-4">
                   {features.map((feature, index) => {
                 const expanded = isExpanded(feature.photoId)
                 const editing = isEditing(feature.photoId)
@@ -957,9 +962,12 @@ export default function Home() {
                 return (
                   <div
                     key={feature.photoId}
-                    className={`border rounded-lg overflow-hidden transition-all ${
-                      unsaved ? 'border-orange-400 dark:border-orange-500 shadow-sm shadow-orange-100 dark:shadow-orange-900/20' : 'border-zinc-200 dark:border-zinc-700'
-                    }`}
+                    className="overflow-hidden transition-all duration-200"
+                    style={{
+                      border: unsaved ? '1.5px solid #FF9500' : '1px solid var(--apple-border)',
+                      borderRadius: 'var(--apple-radius)',
+                      boxShadow: unsaved ? '0 0 0 3px rgba(255, 149, 0, 0.1)' : 'none'
+                    }}
                   >
                     {/* Header */}
                     <div className="p-4">
@@ -967,21 +975,24 @@ export default function Home() {
                         <img
                           src={photos[index]?.url}
                           alt={`Photo ${index + 1}`}
-                          className="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                          className="w-16 h-16 object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                          style={{ borderRadius: '12px' }}
                           onClick={() => setPreviewPhoto(photos[index]?.url || null)}
                         />
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           {editing ? (
                             <>
                               <button
                                 onClick={saveEdits}
-                                className="px-3 py-1.5 text-sm font-medium text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: '#34C759', background: 'rgba(52, 199, 89, 0.08)' }}
                               >
                                 保存
                               </button>
                               <button
                                 onClick={cancelEditing}
-                                className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
                               >
                                 取消
                               </button>
@@ -990,19 +1001,22 @@ export default function Home() {
                             <>
                               <button
                                 onClick={() => startEditing(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: 'var(--apple-blue)', background: 'rgba(0, 122, 255, 0.06)' }}
                               >
                                 编辑
                               </button>
                               <button
                                 onClick={() => toggleExpand(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
                               >
-                                {expanded ? '收起 ▲' : '展开 ▼'}
+                                {expanded ? '收起' : '展开'}
                               </button>
                               <button
                                 onClick={() => deletePhoto(feature.photoId)}
-                                className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                                style={{ color: '#FF3B30', background: 'rgba(255, 59, 48, 0.06)' }}
                               >
                                 删除
                               </button>
@@ -1011,8 +1025,8 @@ export default function Home() {
                         </div>
                       </div>
                       {unsaved && (
-                        <div className="mt-2 text-xs text-orange-600 dark:text-orange-400">
-                          ⚠️ 有未保存的修改
+                        <div className="mt-2 text-xs" style={{ color: '#FF9500' }}>
+                          有未保存的修改
                         </div>
                       )}
                     </div>
@@ -1023,58 +1037,59 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                           {getEditableKeys(feature).map(key => (
                             <div key={key} className="space-y-1">
-                              <label className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">{formatKey(key)}</label>
+                              <label className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>{formatKey(key)}</label>
                               <input
                                 type="text"
                                 value={formatValue(editValues[key] ?? '')}
                                 onChange={(e) => handleEditChange(key, parseValue(key, e.target.value))}
-                                className="w-full px-3 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-zinc-100"
+                                className="w-full px-3 py-2 text-sm focus:outline-none transition-all duration-200"
+                                style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
                               />
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-1.5 text-sm">
                           {feature.location && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">地点:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{translateValue('location', feature.location)}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>地点:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('location', feature.location)}</span>
                             </div>
                           )}
                           {feature.scene_type && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">场景:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{translateValue('scene_type', feature.scene_type)}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>场景:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('scene_type', feature.scene_type)}</span>
                             </div>
                           )}
                           {feature.time_of_day && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">时间:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{translateValue('time_of_day', feature.time_of_day)}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>时间:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('time_of_day', feature.time_of_day)}</span>
                             </div>
                           )}
                           {feature.people_count !== undefined && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">人数:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{feature.people_count}人</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>人数:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{feature.people_count}人</span>
                             </div>
                           )}
                           {feature.emotion && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">情感:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{translateValue('emotion', feature.emotion)}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>情感:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('emotion', feature.emotion)}</span>
                             </div>
                           )}
                           {feature.events && feature.events.length > 0 && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">活动:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{translateValue('events', feature.events)}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>活动:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('events', feature.events)}</span>
                             </div>
                           )}
                           {feature.objects && feature.objects.length > 0 && (
                             <div className="flex items-baseline gap-2">
-                              <span className="font-semibold text-zinc-700 dark:text-zinc-200">物品:</span>
-                              <span className="text-zinc-600 dark:text-zinc-400">{feature.objects.slice(0, 3).join(', ')}{feature.objects.length > 3 ? '...' : ''}</span>
+                              <span className="font-medium" style={{ color: 'var(--foreground)' }}>物品:</span>
+                              <span style={{ color: 'var(--apple-gray-dark)' }}>{feature.objects.slice(0, 3).join(', ')}{feature.objects.length > 3 ? '...' : ''}</span>
                             </div>
                           )}
                         </div>
@@ -1083,28 +1098,28 @@ export default function Home() {
 
                     {/* Detailed features (expandable, not editable in this view) */}
                     {expanded && !editing && (
-                      <div className="px-4 pb-4 border-t border-zinc-200 dark:border-zinc-700 pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      <div className="px-4 pb-4 pt-4" style={{ borderTop: '1px solid var(--apple-border)' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-sm">
                           {/* Scene Details */}
                           {(feature.setting_description || feature.season || feature.weather) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">场景详情</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>场景详情</p>
                               {feature.setting_description && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">描述</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.setting_description}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>描述</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.setting_description}</p>
                                 </div>
                               )}
                               {feature.season && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">季节</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('season', feature.season)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>季节</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('season', feature.season)}</p>
                                 </div>
                               )}
                               {feature.weather && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">天气</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('weather', feature.weather)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>天气</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('weather', feature.weather)}</p>
                                 </div>
                               )}
                             </div>
@@ -1113,29 +1128,29 @@ export default function Home() {
                           {/* People Details */}
                           {(feature.people_descriptions?.length || feature.expressions?.length || feature.poses?.length || feature.relationships?.length) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">人物详情</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>人物详情</p>
                               {feature.people_descriptions && feature.people_descriptions.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">人物</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.people_descriptions.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>人物</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.people_descriptions.join(', ')}</p>
                                 </div>
                               )}
                               {feature.expressions && feature.expressions.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">表情</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.expressions.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>表情</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.expressions.join(', ')}</p>
                                 </div>
                               )}
                               {feature.poses && feature.poses.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">姿态</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.poses.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>姿态</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.poses.join(', ')}</p>
                                 </div>
                               )}
                               {feature.relationships && feature.relationships.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">关系</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('relationships', feature.relationships)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>关系</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('relationships', feature.relationships)}</p>
                                 </div>
                               )}
                             </div>
@@ -1144,23 +1159,23 @@ export default function Home() {
                           {/* Mood Details */}
                           {(feature.mood || feature.atmosphere || feature.context) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">氛围详情</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>氛围详情</p>
                               {feature.mood && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">氛围</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('mood', feature.mood)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>氛围</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('mood', feature.mood)}</p>
                                 </div>
                               )}
                               {feature.atmosphere && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">氛围描述</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.atmosphere}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>氛围描述</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.atmosphere}</p>
                                 </div>
                               )}
                               {feature.context && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">场合</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('context', feature.context)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>场合</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('context', feature.context)}</p>
                                 </div>
                               )}
                             </div>
@@ -1169,29 +1184,29 @@ export default function Home() {
                           {/* Visual Elements */}
                           {(feature.background_elements?.length || feature.foreground_elements?.length || feature.colors?.length || feature.lighting) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">视觉元素</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>视觉元素</p>
                               {feature.colors && feature.colors.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">色调</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.colors.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>色调</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.colors.join(', ')}</p>
                                 </div>
                               )}
                               {feature.lighting && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">光线</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('lighting', feature.lighting)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>光线</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('lighting', feature.lighting)}</p>
                                 </div>
                               )}
                               {feature.background_elements && feature.background_elements.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">背景</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.background_elements.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>背景</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.background_elements.join(', ')}</p>
                                 </div>
                               )}
                               {feature.foreground_elements && feature.foreground_elements.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">前景</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.foreground_elements.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>前景</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.foreground_elements.join(', ')}</p>
                                 </div>
                               )}
                             </div>
@@ -1200,23 +1215,23 @@ export default function Home() {
                           {/* Composition & Style */}
                           {(feature.composition || feature.perspective || feature.style) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">构图与风格</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>构图与风格</p>
                               {feature.composition && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">构图</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('composition', feature.composition)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>构图</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('composition', feature.composition)}</p>
                                 </div>
                               )}
                               {feature.perspective && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">视角</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('perspective', feature.perspective)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>视角</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('perspective', feature.perspective)}</p>
                                 </div>
                               )}
                               {feature.style && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">风格</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('style', feature.style)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>风格</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('style', feature.style)}</p>
                                 </div>
                               )}
                             </div>
@@ -1225,23 +1240,23 @@ export default function Home() {
                           {/* Sensory */}
                           {(feature.soundscape || feature.temperature || feature.textures?.length) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">感官体验</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>感官体验</p>
                               {feature.soundscape && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">声景</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.soundscape}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>声景</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.soundscape}</p>
                                 </div>
                               )}
                               {feature.temperature && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">温度</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('temperature', feature.temperature)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>温度</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('temperature', feature.temperature)}</p>
                                 </div>
                               )}
                               {feature.textures && feature.textures.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">质感</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.textures.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>质感</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.textures.join(', ')}</p>
                                 </div>
                               )}
                             </div>
@@ -1250,23 +1265,23 @@ export default function Home() {
                           {/* Narrative */}
                           {(feature.story_hint || feature.moment_significance || feature.aesthetic_keywords?.length) && (
                             <div className="space-y-2">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-50 text-sm">叙事元素</p>
+                              <p className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>叙事元素</p>
                               {feature.story_hint && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">故事暗示</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.story_hint}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>故事暗示</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.story_hint}</p>
                                 </div>
                               )}
                               {feature.moment_significance && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">时刻意义</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{translateValue('moment_significance', feature.moment_significance)}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>时刻意义</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{translateValue('moment_significance', feature.moment_significance)}</p>
                                 </div>
                               )}
                               {feature.aesthetic_keywords && feature.aesthetic_keywords.length > 0 && (
                                 <div className="space-y-1">
-                                  <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-xs">美学关键词</p>
-                                  <p className="text-zinc-600 dark:text-zinc-400">{feature.aesthetic_keywords.join(', ')}</p>
+                                  <p className="font-medium text-xs" style={{ color: 'var(--foreground)' }}>美学关键词</p>
+                                  <p style={{ color: 'var(--apple-gray-dark)' }}>{feature.aesthetic_keywords.join(', ')}</p>
                                 </div>
                               )}
                             </div>
@@ -1281,17 +1296,17 @@ export default function Home() {
               )}
 
               {activeTab === 'story' && storyArc && (
-                <div className="p-6">
+                <div className="p-5">
                   {/* "生成故事"时：只显示生成状态，隐藏故事列表 */}
                   {isGeneratingNewStory ? (
-                    <div className="py-12 text-center">
+                    <div className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-12 h-12 border-[3px] rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
                         <div className="space-y-2">
-                          <p className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
+                          <p className="text-lg font-medium" style={{ color: 'var(--foreground)' }}>
                             正在生成故事...
                           </p>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                          <p className="text-sm" style={{ color: 'var(--apple-gray-dark)' }}>
                             AI正在智能排序照片并生成分镜脚本
                           </p>
                         </div>
@@ -1300,58 +1315,69 @@ export default function Home() {
                   ) : (
                     <>
                       {/* 故事操作栏 */}
-                      <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-700">
+                      <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: '1px solid var(--apple-border)' }}>
                         <div className="flex items-center gap-4 text-sm">
-                          <span className="text-zinc-600 dark:text-zinc-400">
-                            叙事方式: <span className="font-medium text-zinc-900 dark:text-zinc-100">{getStructureName(storyArc.structure)}</span>
+                          <span style={{ color: 'var(--apple-gray-dark)' }}>
+                            叙事方式: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{getStructureName(storyArc.structure)}</span>
                           </span>
-                          <span className="text-zinc-600 dark:text-zinc-400">
-                            匹配度: <span className="font-medium text-zinc-900 dark:text-zinc-100">{(storyArc.confidence * 100).toFixed(0)}%</span>
+                          <span style={{ color: 'var(--apple-gray-dark)' }}>
+                            匹配度: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{(storyArc.confidence * 100).toFixed(0)}%</span>
                           </span>
-                          <span className="text-zinc-600 dark:text-zinc-400">
-                            风格: <span className="font-medium text-zinc-900 dark:text-zinc-100">{storyArc.options.style}</span>
+                          <span style={{ color: 'var(--apple-gray-dark)' }}>
+                            风格: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{storyArc.options.style}</span>
                           </span>
                           {storyboard && (
-                            <span className="text-zinc-600 dark:text-zinc-400">
-                              总时长: <span className="font-medium text-zinc-900 dark:text-zinc-100">{storyboard.totalDuration}秒</span>
+                            <span style={{ color: 'var(--apple-gray-dark)' }}>
+                              总时长: <span className="font-medium" style={{ color: 'var(--foreground)' }}>{storyboard.totalDuration}秒</span>
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={handleRegenerateStory}
-                            className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                            className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80"
+                            style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
                           >
                             更新叙事脚本
                           </button>
                           <div className="relative" data-export-dropdown>
                             <button
                               onClick={() => setExportDropdownOpen(!exportDropdownOpen)}
-                              className="px-3 py-1.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors flex items-center gap-1"
+                              className="px-3 py-1.5 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200 hover:opacity-80 flex items-center gap-1.5"
+                              style={{ color: 'var(--apple-gray-dark)', background: 'rgba(0,0,0,0.04)' }}
                             >
                               导出
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                               </svg>
                             </button>
                             {exportDropdownOpen && (
-                              <div className="absolute right-0 top-full mt-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg overflow-hidden z-10 min-w-[150px]">
+                              <div className="absolute right-0 top-full mt-2 overflow-hidden z-10 min-w-[150px]" style={{ background: 'var(--apple-card)', border: '1px solid var(--apple-border)', borderRadius: '12px', boxShadow: 'var(--apple-shadow-lg)' }}>
                                 <div className="py-1">
                                   <button
                                     onClick={() => handleExport('markdown')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                    className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
+                                    style={{ color: 'var(--foreground)' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     Markdown
                                   </button>
                                   <button
                                     onClick={() => handleExport('json')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                    className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
+                                    style={{ color: 'var(--foreground)' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     JSON
                                   </button>
                                   <button
                                     onClick={() => handleExport('text')}
-                                    className="block w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                    className="block w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150"
+                                    style={{ color: 'var(--foreground)' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                   >
                                     纯文本
                                   </button>
@@ -1364,13 +1390,11 @@ export default function Home() {
 
                       {/* 生成故事板中提示（仅"更新叙事脚本"时显示） */}
                       {generatingStoryboard && !isGeneratingNewStory && (
-                        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                            <span className="text-sm text-blue-700 dark:text-blue-400">
-                              正在更新叙事脚本...
-                            </span>
-                          </div>
+                        <div className="mb-6 p-4 flex items-center gap-3" style={{ background: 'rgba(0, 122, 255, 0.04)', border: '1px solid rgba(0, 122, 255, 0.1)', borderRadius: 'var(--apple-radius)' }}>
+                          <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--apple-blue)', borderTopColor: 'transparent' }} />
+                          <span className="text-sm" style={{ color: 'var(--apple-blue)' }}>
+                            正在更新叙事脚本...
+                          </span>
                         </div>
                       )}
 
@@ -1380,21 +1404,22 @@ export default function Home() {
                           return (
                         <div
                           key={segment.id}
-                          className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+                          className="overflow-hidden"
+                          style={{ border: '1px solid var(--apple-border)', borderRadius: 'var(--apple-radius)' }}
                         >
                           {/* Segment header */}
-                          <div className="bg-zinc-50 dark:bg-zinc-800 px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+                          <div className="px-4 py-3" style={{ background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid var(--apple-border)' }}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-6 h-6 bg-blue-600 text-white text-xs font-medium rounded-full">
+                                <span className="flex items-center justify-center w-6 h-6 text-white text-xs font-semibold rounded-full" style={{ background: 'var(--apple-blue)' }}>
                                   {index + 1}
                                 </span>
-                                <h4 className="font-medium text-zinc-900 dark:text-zinc-50">{segment.title}</h4>
+                                <h4 className="font-medium" style={{ color: 'var(--foreground)' }}>{segment.title}</h4>
                               </div>
-                              <span className="text-xs text-zinc-500">{segment.photoIds.length} 张照片</span>
+                              <span className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>{segment.photoIds.length} 张照片</span>
                             </div>
                             {segment.description && (
-                              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{segment.description}</p>
+                              <p className="text-sm mt-1" style={{ color: 'var(--apple-gray-dark)' }}>{segment.description}</p>
                             )}
                           </div>
 
@@ -1409,26 +1434,29 @@ export default function Home() {
                                 return photo ? (
                                   <div
                                     key={frame.id}
-                                    className={`flex gap-4 p-3 rounded-lg transition-all ${
-                                      isEditing
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700'
-                                        : 'bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                                    }`}
+                                    className="flex gap-4 p-3 transition-all duration-200"
+                                    style={{
+                                      borderRadius: '12px',
+                                      background: isEditing ? 'rgba(0, 122, 255, 0.04)' : 'rgba(0,0,0,0.02)',
+                                      border: isEditing ? '1.5px solid rgba(0, 122, 255, 0.2)' : '1px solid transparent'
+                                    }}
                                   >
                                     <img
                                       src={photo.url}
                                       alt={`Frame ${frameIndex + 1}`}
-                                      className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                                      className="w-20 h-20 object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                                      style={{ borderRadius: '10px' }}
                                       onClick={() => setPreviewPhoto(photo.url)}
                                     />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-start justify-between gap-2 mb-2">
-                                        <span className="text-xs font-medium text-zinc-500">第 {frameIndex + 1} 镜</span>
+                                        <span className="text-xs font-medium" style={{ color: 'var(--apple-gray-dark)' }}>第 {frameIndex + 1} 镜</span>
                                         <div className="flex items-center gap-2">
                                           {!isEditing && !generatingStoryboard && (
                                             <button
                                               onClick={() => startEditingFrame(frame.id, frame.narration, frame.duration, frame.transition || '')}
-                                              className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                              className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
+                                              style={{ color: 'var(--apple-blue)' }}
                                             >
                                               编辑
                                             </button>
@@ -1437,13 +1465,15 @@ export default function Home() {
                                             <div className="flex items-center gap-2">
                                               <button
                                                 onClick={saveFrameEdit}
-                                                className="text-xs text-green-600 dark:text-green-400 hover:underline"
+                                                className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
+                                                style={{ color: '#34C759' }}
                                               >
                                                 保存
                                               </button>
                                               <button
                                                 onClick={cancelEditingFrame}
-                                                className="text-xs text-zinc-600 dark:text-zinc-400 hover:underline"
+                                                className="text-xs font-medium cursor-pointer transition-opacity hover:opacity-70"
+                                                style={{ color: 'var(--apple-gray-dark)' }}
                                               >
                                                 取消
                                               </button>
@@ -1456,32 +1486,35 @@ export default function Home() {
                                         // 编辑模式
                                         <div className="space-y-3">
                                           <div>
-                                            <label className="text-xs text-zinc-600 dark:text-zinc-400">叙事描述</label>
+                                            <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>叙事描述</label>
                                             <textarea
                                               value={editingFrameData.narration}
                                               onChange={(e) => setEditingFrameData({ ...editingFrameData, narration: e.target.value })}
-                                              className="w-full mt-1 px-2 py-1 text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[60px] text-zinc-900 dark:text-zinc-100"
+                                              className="w-full mt-1 px-3 py-2 text-sm focus:outline-none min-h-[60px]"
+                                              style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
                                               placeholder="输入叙事描述..."
                                             />
                                           </div>
                                           <div className="flex gap-4">
                                             <div className="flex-1">
-                                              <label className="text-xs text-zinc-600 dark:text-zinc-400">时长（秒）</label>
+                                              <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>时长（秒）</label>
                                               <input
                                                 type="number"
                                                 min="1"
                                                 max="10"
                                                 value={editingFrameData.duration}
                                                 onChange={(e) => setEditingFrameData({ ...editingFrameData, duration: parseInt(e.target.value) || 2 })}
-                                                className="w-full mt-1 px-2 py-1 text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-zinc-100"
+                                                className="w-full mt-1 px-3 py-2 text-sm focus:outline-none"
+                                                style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
                                               />
                                             </div>
                                             <div className="flex-1">
-                                              <label className="text-xs text-zinc-600 dark:text-zinc-400">转场效果</label>
+                                              <label className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>转场效果</label>
                                               <select
                                                 value={editingFrameData.transition}
                                                 onChange={(e) => setEditingFrameData({ ...editingFrameData, transition: e.target.value || undefined })}
-                                                className="w-full mt-1 px-2 py-1 text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-zinc-900 dark:text-zinc-100"
+                                                className="w-full mt-1 px-3 py-2 text-sm focus:outline-none cursor-pointer"
+                                                style={{ border: '1px solid var(--apple-border)', borderRadius: '10px', background: 'var(--background)', color: 'var(--foreground)' }}
                                               >
                                                 <option value="">无</option>
                                                 <option value="fade">淡入淡出</option>
@@ -1495,16 +1528,16 @@ export default function Home() {
                                       ) : (
                                         // 显示模式
                                         <>
-                                          <div className="flex items-center gap-3 text-xs text-zinc-500 mb-2">
+                                          <div className="flex items-center gap-3 text-xs mb-2" style={{ color: 'var(--apple-gray-dark)' }}>
                                             <span>{frame.duration}秒</span>
                                             {frame.transition && <span>转场: {frame.transition}</span>}
                                           </div>
                                           {generatingStoryboard ? (
-                                            <div className="text-sm text-zinc-400 italic">正在生成叙事...</div>
+                                            <div className="text-sm italic" style={{ color: 'var(--apple-gray-dark)' }}>正在生成叙事...</div>
                                           ) : frame.narration ? (
-                                            <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{frame.narration}</p>
+                                            <p className="text-sm leading-relaxed" style={{ color: 'var(--foreground)', opacity: 0.85 }}>{frame.narration}</p>
                                           ) : (
-                                            <p className="text-sm text-zinc-400 italic">暂无叙事描述</p>
+                                            <p className="text-sm italic" style={{ color: 'var(--apple-gray-dark)' }}>暂无叙事描述</p>
                                           )}
                                         </>
                                       )}
@@ -1520,22 +1553,24 @@ export default function Home() {
                                 return photo ? (
                                   <div
                                     key={photoId}
-                                    className="flex gap-4 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-lg"
+                                    className="flex gap-4 p-3"
+                                    style={{ background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}
                                   >
                                     <img
                                       src={photo.url}
                                       alt={`Photo ${photoIndex + 1}`}
-                                      className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                                      className="w-20 h-20 object-cover cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                                      style={{ borderRadius: '10px' }}
                                       onClick={() => setPreviewPhoto(photo.url)}
                                     />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-start justify-between gap-2 mb-2">
-                                        <span className="text-xs font-medium text-zinc-500">第 {photoIndex + 1} 张</span>
+                                        <span className="text-xs font-medium" style={{ color: 'var(--apple-gray-dark)' }}>第 {photoIndex + 1} 张</span>
                                         {generatingStoryboard && (
-                                          <span className="text-xs text-zinc-400">生成中...</span>
+                                          <span className="text-xs" style={{ color: 'var(--apple-gray-dark)' }}>生成中...</span>
                                         )}
                                       </div>
-                                      <p className="text-sm text-zinc-400 italic">
+                                      <p className="text-sm italic" style={{ color: 'var(--apple-gray-dark)' }}>
                                         {generatingStoryboard ? '正在生成叙事脚本...' : '叙事脚本生成中...'}
                                       </p>
                                     </div>
@@ -1554,7 +1589,7 @@ export default function Home() {
               )}
 
               {!storyArc && activeTab === 'story' && (
-                <div className="p-12 text-center text-zinc-500">
+                <div className="p-16 text-center" style={{ color: 'var(--apple-gray-dark)' }}>
                   <p>请先点击"生成故事"按钮</p>
                 </div>
               )}
@@ -1566,21 +1601,26 @@ export default function Home() {
       {/* 图片预览弹窗 */}
       {previewPhoto && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 flex items-center justify-center z-50 p-4 cursor-pointer"
+          style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
           onClick={() => setPreviewPhoto(null)}
         >
           <div className="relative max-w-4xl max-h-full">
             <img
               src={previewPhoto}
               alt="预览"
-              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+              className="max-w-full max-h-[85vh] object-contain"
+              style={{ borderRadius: 'var(--apple-radius)' }}
               onClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={() => setPreviewPhoto(null)}
-              className="absolute -top-4 -right-4 w-10 h-10 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 shadow-lg"
+              className="absolute -top-4 -right-4 w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80"
+              style={{ background: 'rgba(255,255,255,0.9)', color: '#1D1D1F', boxShadow: 'var(--apple-shadow)' }}
             >
-              ×
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M1 1l12 12M13 1L1 13" />
+              </svg>
             </button>
           </div>
         </div>
