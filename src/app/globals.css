@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F5F5F7;
+  --foreground: #1D1D1F;
+  --apple-blue: #007AFF;
+  --apple-blue-hover: #0056CC;
+  --apple-gray: #F5F5F7;
+  --apple-gray-dark: #86868B;
+  --apple-card: #FFFFFF;
+  --apple-border: rgba(0, 0, 0, 0.06);
+  --apple-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --apple-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --apple-radius: 16px;
+  --apple-radius-lg: 20px;
+  --apple-radius-xl: 24px;
+  --apple-transition: 280ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 @theme inline {
@@ -14,13 +26,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --foreground: #F5F5F7;
+    --apple-card: #1C1C1E;
+    --apple-border: rgba(255, 255, 255, 0.08);
+    --apple-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --apple-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
   }
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, var(--font-geist-sans), 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(0, 122, 255, 0.2);
+}
+
+input, select, textarea, button {
+  font-family: inherit;
 }
