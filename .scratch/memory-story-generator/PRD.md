@@ -152,7 +152,14 @@ type Frame = {
 
 ### UI/UX Decisions
 
-- **Language**: All UI text in Chinese; no mixed English/Chinese display
+- **Language**: All UI text in Chinese; no mixed English/Chinese display (app title is "Memory Story Generator")
+- **Design Language**: Apple-style UI — rounded corners, subtle shadows, glass-morphism effects, smooth transitions
+- **Dark Mode**: Full dark mode support via CSS variable system:
+  - 24 semantic CSS variables (`--apple-surface`, `--apple-divider`, `--apple-blue-tint-*`, etc.) covering surfaces, borders, shadows, and semantic colors
+  - `[data-theme="dark"]` selector for manual toggle, `@media (prefers-color-scheme: dark)` as system preference fallback
+  - FOUC prevention via blocking `<script>` in `<head>` that reads `localStorage.theme` before first paint
+  - Premium glass-morphism toggle button (sun/moon icons with rotation animation) fixed at top-right corner
+  - `.theme-transitioning` class for smooth 350ms theme transitions
 - **Typography**: Field labels use `font-semibold` with darker colors (`text-zinc-800`) to distinguish from field values (`text-zinc-600`)
 - **Tab Navigation**: Photos and Story are displayed in separate tabs; switching is smooth and maintains state
 - **Progress Indicators**:
@@ -160,7 +167,10 @@ type Frame = {
   - Style recommendation: "正在推荐风格..." while AI suggests appropriate narrative styles
   - Append mode: compact inline indicator that preserves existing results
 - **Photo Preview**: All photos are clickable to view in fullscreen modal; close via background click, ESC key, or close button
-- **Style Selection**: Dropdown with AI-recommended styles + custom input option; each style shows recommendation reason
+- **Style Selection**: Custom Apple-style dropdown (not native `<select>`) with AI-recommended styles + custom input option; each style shows recommendation reason; style selector, custom input, and generate button are combined in a unified "Story Generation Workspace" card
+- **Custom Dropdowns**: All `<select>` elements replaced with Apple-style custom dropdowns (blue focus ring, check icon for selected item, fadeIn animation, click-outside-to-close)
+- **Story Editing**: Frame editing uses pill-shaped buttons (edit/save/cancel), textarea with focus rings, custom transition dropdown; segment number badges use subtle gradient backgrounds instead of solid blue circles
+- **Feature Display**: Expanded feature sections filter out meaningless values (empty strings, "0", null) via `filterMeaningful()` utility
 
 ### Performance Considerations
 
