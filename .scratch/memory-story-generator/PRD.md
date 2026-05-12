@@ -168,8 +168,10 @@ type Frame = {
   - Append mode: compact inline indicator that preserves existing results
 - **Photo Preview**: All photos are clickable to view in fullscreen modal; close via background click, ESC key, or close button
 - **Style Selection**: Custom Apple-style dropdown (not native `<select>`) with AI-recommended styles + custom input option; each style shows recommendation reason; style selector, custom input, and generate button are combined in a unified "Story Generation Workspace" card
+- **Story Generation Workspace**: Card always visible when photos exist; button shows context-appropriate text (disabled states for < 3 photos, extracting features, unsaved changes); style recommendation auto-triggers when features reach 3+ including append mode
 - **Custom Dropdowns**: All `<select>` elements replaced with Apple-style custom dropdowns (blue focus ring, check icon for selected item, fadeIn animation, click-outside-to-close)
-- **Story Editing**: Frame editing uses pill-shaped buttons (edit/save/cancel), textarea with focus rings, custom transition dropdown; segment number badges use subtle gradient backgrounds instead of solid blue circles
+- **Story Editing**: Frame editing uses pill-shaped buttons (edit/save/cancel), textarea with focus rings, custom transition dropdown; segment number badges use subtle gradient backgrounds instead of solid blue circles; save button uses transparent green style for dark mode comfort
+- **Photo Deletion**: Secondary confirmation when deleting would drop below 3 photos ("删除后照片将少于 3 张，生成故事功能将不可用"); on confirm, resets all story state and switches to Photos tab
 - **Feature Display**: Expanded feature sections filter out meaningless values (empty strings, "0", null) via `filterMeaningful()` utility
 
 ### Performance Considerations

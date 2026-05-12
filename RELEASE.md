@@ -36,6 +36,10 @@
 - 修复特征展开列表中无意义 "0" 值显示（新增 `filterMeaningful()` 过滤）
 - 修复编辑模式转场下拉面板被父容器 `overflow-hidden` 裁切的问题
 - 修复 React hydration mismatch 报错（`suppressHydrationWarning`）
+- 修复故事生成卡片在风格推荐加载时不显示的问题（Mac 上不可见）
+- 修复追加照片到 3 张时风格推荐不触发（追加模式下 features 计数错误）
+- 修复删除照片导致低于 3 张时故事状态未重置的问题
+- 暗黑模式下编辑保存按钮绿色过亮，改为透明描边样式
 - 应用标题改为英文 "Memory Story Generator"
 
 ---
